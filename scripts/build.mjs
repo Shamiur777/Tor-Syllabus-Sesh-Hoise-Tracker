@@ -38,22 +38,49 @@ const readIfPresent = (p) => {
 // Strips ESM syntax so the concatenated result runs inside a plain <script>.
 // Every module shares one IIFE scope, so cross-module references resolve naturally.
 export function stripModuleSyntax(source, filePath = '<unknown>') {
-  // Strip imports (with or without trailing semicolon)
-  source = source.replace(/^\s*import\s+[^;]*?;?\s*$/gm, '');
+  // Strip imports (including multi-line). Match from 'import' to the quoted module
+  // specifier plus optional semicolon. Handles:
+  // - import { a, b } from './x.js';
+  // - import './x.js';
+  // - import foo from './x.js';
+  source = source.replace(/^\s*import\b[\s\S]*?['"][^'"]*['"];?\s*$/gm, '');
 
-  // Strip export default function/class/async function (declaration forms)
-  source = source.replace(/^\s*export\s+default\s+((?:async\s+)?function|class)\b/gm, '$1');
-
-  // Detect and reject anonymous default exports (literals and expressions)
-  if (/^\s*export\s+default\s+/m.test(source)) {
-    throw new Error(`Anonymous default export in ${filePath} — use a named export instead.`);
+  // Detect and reject any 'export default' that is NOT a named function/class/etc.
+  // Valid forms are:
+  // - export default function <identifier> { ... }
+  // - export default class <identifier> { ... }
+  // - export default async function <identifier> { ... }
+  // Reject anything else like:
+  // - export default 42; (literal)
+  // - export default { a: 1 }; (object literal)
+  // - export default function() {}; (anonymous function)
+  // - export default class {}; (anonymous class)
+  const hasExportDefault = /^\s*export\s+default\s+/m.test(source);
+  if (hasExportDefault) {
+    const hasNamedFunc = /^\s*export\s+default\s+(async\s+)?function\s+\w+/m.test(source);
+    const hasNamedClass = /^\s*export\s+default\s+class\s+\w+/m.test(source);
+    if (!hasNamedFunc && !hasNamedClass) {
+      throw new Error(`Anonymous default export in ${filePath} — use a named export instead.`);
+    }
   }
+
+  // Strip export default function/class/async function (named declarations only).
+  source = source.replace(/^\s*export\s+default\s+((?:async\s+)?function|class)\s+/gm, '$1 ');
 
   // Strip named exports (const/let/var/function/class/async function)
   source = source.replace(/^\s*export\s+(?=(?:const|let|var|function|class|async)\b)/gm, '');
 
   // Strip export { ... }
-  source = source.replace(/^\s*export\s*\{[^}]*\}\s*;?\s*$/gm, '');
+  source = source.replace(/^\s*export\s*\{[\s\S]*?\}\s*;?\s*$/gm, '');
+
+  // Post-strip validation: scan for any remaining import/export at line start.
+  // This catches constructs we don't handle yet (e.g., export * from ...).
+  const lines = source.split('\n');
+  for (let i = 0; i < lines.length; i++) {
+    if (/^\s*(import|export)\s/m.test(lines[i])) {
+      throw new Error(`Unhandled ESM syntax in ${filePath}, line ${i + 1}: ${lines[i].trim()}`);
+    }
+  }
 
   return source;
 }
@@ -64,9 +91,18 @@ export function buildHtml() {
     const source = readIfPresent(path);
     return stripModuleSyntax(source, path);
   }).join('\n');
+
+  // Verify the concatenated script parses as valid JavaScript.
+  const wrappedScript = `(function(){\n'use strict';\n${script}\n})();`;
+  try {
+    new Function(wrappedScript);
+  } catch (err) {
+    throw new Error(`Built script does not parse: ${err.message}`);
+  }
+
   return read('src/index.html')
     .replace('{{STYLES}}', () => styles)
-    .replace('{{SCRIPT}}', () => `(function(){\n'use strict';\n${script}\n})();`);
+    .replace('{{SCRIPT}}', () => wrappedScript);
 }
 
 // Only write to disk when invoked directly, so importing this from a test is side-effect free.
