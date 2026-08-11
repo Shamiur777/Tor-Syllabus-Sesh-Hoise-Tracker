@@ -37,3 +37,55 @@ test('out of range percentages clamp rather than throw', () => {
 test('unknown batch throws', () => {
   assert.throws(() => resolveTier(50, '99'), RangeError);
 });
+
+import { computeCompletion, computeSubjectBreakdown } from '../src/lib/scoring.js';
+
+const fixture = [
+  { id: 'phy', name: 'Physics', papers: [
+    { name: '1st', chapters: [{ id: 'p1' }, { id: 'p2' }] },
+    { name: '2nd', chapters: [{ id: 'p3' }, { id: 'p4' }] },
+  ] },
+  { id: 'ict', name: 'ICT', papers: [
+    { name: '', chapters: [{ id: 'i1' }] },
+  ] },
+];
+
+test('percentage is checked over total across selected subjects', () => {
+  const r = computeCompletion(fixture, new Set(['p1', 'p2', 'i1']));
+  assert.equal(r.completed, 3);
+  assert.equal(r.total, 5);
+  assert.equal(r.percent, 60);
+});
+
+test('percentage rounds to the nearest integer', () => {
+  const r = computeCompletion(fixture, new Set(['p1']));
+  assert.equal(r.percent, 20);
+  const r2 = computeCompletion(fixture, new Set(['p1', 'p2']));
+  assert.equal(r2.percent, 40);
+});
+
+test('checked ids outside the selected subjects do not count', () => {
+  // A student who deselects Biology must not keep credit for its chapters.
+  const r = computeCompletion(fixture, new Set(['p1', 'bio-1', 'bio-2']));
+  assert.equal(r.completed, 1);
+  assert.equal(r.total, 5);
+});
+
+test('no subjects yields zero percent, not NaN', () => {
+  const r = computeCompletion([], new Set());
+  assert.equal(r.percent, 0);
+  assert.equal(r.total, 0);
+});
+
+test('everything checked is exactly 100', () => {
+  const r = computeCompletion(fixture, new Set(['p1', 'p2', 'p3', 'p4', 'i1']));
+  assert.equal(r.percent, 100);
+});
+
+test('breakdown reports per-subject progress', () => {
+  const rows = computeSubjectBreakdown(fixture, new Set(['p1', 'p2', 'p3', 'p4']));
+  assert.deepEqual(rows, [
+    { id: 'phy', name: 'Physics', completed: 4, total: 4, percent: 100 },
+    { id: 'ict', name: 'ICT', completed: 0, total: 1, percent: 0 },
+  ]);
+});

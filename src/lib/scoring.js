@@ -8,3 +8,19 @@ export function resolveTier(percent, batch) {
   const resolved = index === -1 ? bands.length - 1 : index;
   return { index: resolved, ...bands[resolved] };
 }
+
+import { countChapters, allChapterIds } from './subjects.js';
+
+export function computeCompletion(subjects, checkedIds) {
+  const total = countChapters(subjects);
+  // Intersect against the subject's own chapters so deselected subjects lose their credit.
+  const completed = allChapterIds(subjects).filter((id) => checkedIds.has(id)).length;
+  return { completed, total, percent: total === 0 ? 0 : Math.round((completed / total) * 100) };
+}
+
+export function computeSubjectBreakdown(subjects, checkedIds) {
+  return subjects.map((s) => {
+    const { completed, total, percent } = computeCompletion([s], checkedIds);
+    return { id: s.id, name: s.name, completed, total, percent };
+  });
+}
