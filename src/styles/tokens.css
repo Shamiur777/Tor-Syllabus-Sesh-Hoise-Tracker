@@ -1,4 +1,85 @@
 :root {
   --font-display: 'Baloo Da 2', system-ui, sans-serif;
   --font-body: 'Hind Siliguri', system-ui, sans-serif;
+
+  --ink: #101820;
+  --ink-soft: #5a6b7d;
+  --line: #dfe6ee;
+  --bg: #f7fafd;
+  --surface: #ffffff;
+
+  --accent: #0a6cf0;
+  --accent-ink: #ffffff;
+  --accent-soft: #e7f0fe;
+  --secondary: #f5a81c;
+  --logo-bg: #ffffff;
+
+  --bad: #d6453d;
+
+  --r-sm: 10px;
+  --r-md: 16px;
+  --r-lg: 24px;
+  --shadow: 0 10px 30px rgba(16, 24, 32, 0.08);
+  --tap: 44px;
+}
+
+/* Infinity School — logo is blue/amber on white, so the page is light. */
+body[data-brand='ssc'] {
+  --ink: #0d1b2a;
+  --ink-soft: #5a6b7d;
+  --line: #dbe6f2;
+  --bg: #f7fafd;
+  --surface: #ffffff;
+  --accent: #0a6cf0;
+  --accent-ink: #ffffff;
+  --accent-soft: #e7f0fe;
+  --secondary: #f5a81c;
+  --logo-bg: #ffffff;
+  --shadow: 0 10px 30px rgba(10, 60, 140, 0.10);
+}
+
+/* Hulkenstein — logo is green/white on black, so the page is dark. */
+body[data-brand='hsc'] {
+  --ink: #f2f5f3;
+  --ink-soft: #9aa8a0;
+  --line: #232a26;
+  --bg: #07090a;
+  --surface: #12161a;
+  --accent: #22a94c;
+  --accent-ink: #04140a;
+  --accent-soft: #122a1a;
+  --secondary: #ffffff;
+  --logo-bg: #000000;
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+}
+
+/* Themes differ in luminance, so form controls must be told which way to render
+   or the browser paints a light-mode checkbox on the dark HSC page. */
+body[data-brand='hsc'] { color-scheme: dark; }
+body[data-brand='ssc'] { color-scheme: light; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-text-size-adjust: 100%;
+  overflow-x: hidden;
+}
+
+h1, h2, h3 { font-family: var(--font-display); margin: 0; line-height: 1.25; }
+button, input { font-family: inherit; font-size: inherit; }
+button { cursor: pointer; }
+
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
