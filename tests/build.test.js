@@ -154,14 +154,41 @@ test('stripModuleSyntax detects unhandled export construct', () => {
   );
 });
 
-test('buildHtml throws on module with unstrippable ESM', () => {
-  // Create a mock: temporarily add an unhandled export to a module file
-  // For this test, we just verify the validation is in place by catching
-  // a module that has unhandled syntax.
-  // We'll test with stripModuleSyntax directly since we can't easily modify files.
-  const badModule = "export * from './other.js';";
+test('buildHtml throws when module contains unhandled export construct', () => {
+  const mockRead = (path) => {
+    if (path === 'src/test-star-export.js') {
+      return "export * from './other.js';";
+    }
+    return '';
+  };
+
   assert.throws(
-    () => stripModuleSyntax(badModule, 'test.js'),
-    /Unhandled ESM syntax/
+    () => buildHtml({
+      modules: ['src/test-star-export.js'],
+      styles: [],
+      readFile: mockRead,
+    }),
+    /Unhandled ESM syntax in src\/test-star-export\.js/
+  );
+});
+
+test('buildHtml parsing gate catches syntactically invalid output', () => {
+  const mockRead = (path) => {
+    if (path === 'src/test-invalid.js') {
+      // Source has valid import that strips away, leaving invalid syntax.
+      // The post-strip validation won't catch this since there's no remaining
+      // import/export line, but the new Function() assertion will.
+      return "import x from './y.js';\nconst broken = ;";
+    }
+    return '';
+  };
+
+  assert.throws(
+    () => buildHtml({
+      modules: ['src/test-invalid.js'],
+      styles: [],
+      readFile: mockRead,
+    }),
+    /Built script does not parse/
   );
 });

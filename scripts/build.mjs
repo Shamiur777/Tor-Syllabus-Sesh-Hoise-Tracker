@@ -85,15 +85,21 @@ export function stripModuleSyntax(source, filePath = '<unknown>') {
   return source;
 }
 
-export function buildHtml() {
-  const styles = STYLES.map(readIfPresent).join('\n');
-  const script = MODULES.map((path) => {
-    const source = readIfPresent(path);
+export function buildHtml(config = {}) {
+  const {
+    modules = MODULES,
+    styles = STYLES,
+    readFile = readIfPresent,  // Allow injection for testing
+  } = config;
+
+  const styleContent = styles.map(readFile).join('\n');
+  const scriptContent = modules.map((path) => {
+    const source = readFile(path);
     return stripModuleSyntax(source, path);
   }).join('\n');
 
   // Verify the concatenated script parses as valid JavaScript.
-  const wrappedScript = `(function(){\n'use strict';\n${script}\n})();`;
+  const wrappedScript = `(function(){\n'use strict';\n${scriptContent}\n})();`;
   try {
     new Function(wrappedScript);
   } catch (err) {
@@ -101,7 +107,7 @@ export function buildHtml() {
   }
 
   return read('src/index.html')
-    .replace('{{STYLES}}', () => styles)
+    .replace('{{STYLES}}', () => styleContent)
     .replace('{{SCRIPT}}', () => wrappedScript);
 }
 
