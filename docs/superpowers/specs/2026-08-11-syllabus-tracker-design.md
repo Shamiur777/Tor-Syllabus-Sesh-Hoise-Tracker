@@ -203,12 +203,44 @@ invalidates old state rather than silently mis-scoring a returning student.
 Extends the existing client design system rather than introducing a new one:
 
 - Baloo Da 2 for display, Hind Siliguri for body, loaded from Google Fonts.
-- Light theme. One accent colour per brand, applied consistently to every CTA and progress
-  indicator.
 - Sticky animated progress ring, per-subject completion bars, staggered card reveals, check
   animation on tick, count-up animation on the final percentage.
 - Responsive with no horizontal overflow and no tap target under 44px, verified from 375×667
   upward.
+
+### Theming from the supplied logos
+
+Both logos arrived as JPEGs with opaque backgrounds, not transparent PNGs. Rather than fight
+that, the two brand themes are built around it, so each logo sits on the page as if it were
+designed there.
+
+Colours sampled directly from the supplied artwork:
+
+| | Infinity School (SSC) | Hulkenstein (HSC) |
+|---|---|---|
+| Logo background | `#ffffff` | `#000000` |
+| Primary brand hue | Blue `#0090f0` → `#0048f0` gradient | Green `#18a848` |
+| Secondary | Amber `#f5a81c`, green swoosh | White `#ffffff` |
+
+This yields two deliberately different themes rather than one theme with a swapped accent:
+
+- **SSC is a light theme.** Near-white page, white surfaces, blue accent with amber as the
+  secondary highlight. The Infinity logo's white background disappears into the page.
+- **HSC is a dark theme.** Near-black page, dark surfaces, Hulkenstein green accent on white
+  text. The Hulkenstein logo's black background disappears into the page.
+
+Both themes are driven entirely by the `data-brand` attribute on `<body>`; no component knows
+which brand is active. The result image canvas uses the matching background colour, so a
+downloaded SSC result is light and a downloaded HSC result is dark.
+
+As a safety net for any logo supplied later with a different background, the logo renders inside
+a rounded chip filled with that brand's logo-background colour. A mismatched logo reads as an
+intentional badge rather than a stray rectangle.
+
+The logos have been trimmed to their content bounding box, padded by 4% in their own background
+colour, capped at 900px on the long edge, and saved as `images/infinity-logo.png` and
+`images/hulkenstein-logo.png`. The originals occupied a great deal of empty margin; untrimmed
+they would have rendered tiny inside their allotted height.
 
 ## Deliverables
 
@@ -243,9 +275,14 @@ file is, what to deploy together, what will need editing, known intentional quir
 1. Chapter-level syllabus for SSC Science / Arts / Commerce and HSC Science / Business Studies /
    Humanities, with 1st and 2nd paper split.
 2. The full HSC Humanities optional subject list, marking which are compulsory.
-3. Eight tier background images at 1080×1920.
-4. Infinity School and Hulkenstein logos as transparent PNGs.
-5. Enrolment URLs for Academic to Admission (HSC) and Complete Academic Program (SSC).
+3. Eight tier background images at 1080×1920. Design the batch '27 and '28 sets to read against
+   both a light background (SSC) and a dark one (HSC), since each set is shared across the two
+   levels. Artwork with its own solid backdrop is safest.
+4. Enrolment URLs for Academic to Admission (HSC) and Complete Academic Program (SSC).
+
+**Received 2026-08-11:** both logos, as `Hulkenstein.jpeg` and `Infinity School.jpeg`. Trimmed
+and normalised into `images/`. No transparent versions are needed; the theming is built around
+their opaque backgrounds.
 
 ## Out of scope
 
