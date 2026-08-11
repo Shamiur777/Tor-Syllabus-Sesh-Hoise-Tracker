@@ -287,8 +287,143 @@ function resolveTier(percent, batch) {
   const resolved = index === -1 ? bands.length - 1 : index;
   return { index: resolved, ...bands[resolved] };
 }
+function computeCompletion(subjects, checkedIds) {
+  const total = countChapters(subjects);
+  // Intersect against the subject's own chapters so deselected subjects lose their credit.
+  const completed = allChapterIds(subjects).filter((id) => checkedIds.has(id)).length;
+  return { completed, total, percent: total === 0 ? 0 : Math.round((completed / total) * 100) };
+}
+function computeSubjectBreakdown(subjects, checkedIds) {
+  return subjects.map((s) => {
+    const { completed, total, percent } = computeCompletion([s], checkedIds);
+    return { id: s.id, name: s.name, completed, total, percent };
+  });
+}
+
+const ok = (normalized = '') => ({ valid: true, error: '', normalized });
+const bad = (error, normalized = '') => ({ valid: false, error, normalized });
+
+function validateText(value, label) {
+  const trimmed = String(value ?? '').trim();
+  if (trimmed.length < 2) return bad(`${label} ঠিকভাবে লেখো`, trimmed);
+  return ok(trimmed);
+}
+function validateName(value) {
+  return validateText(value, 'নামটা');
+}
+function validateInstitute(value) {
+  return validateText(value, 'প্রতিষ্ঠানের নামটা');
+}
+
+// Bangladeshi mobile numbers are 11 digits: 01 followed by an operator digit in 3-9.
+// 010 and 012 are unallocated, so they are treated as typos.
+function validatePhone(value) {
+  const digits = String(value ?? '').replace(/\D/g, '').replace(/^(?:88)?/, '');
+  if (!/^01[3-9]\d{8}$/.test(digits)) {
+    return bad('১১ ডিজিটের সঠিক মোবাইল নাম্বার দাও (যেমন ০১৭xxxxxxxx)', digits);
+  }
+  return ok(digits);
+}
+function validateEmail(value) {
+  const normalized = String(value ?? '').trim().toLowerCase();
+  if (!/^[^\s@]+@[^\s@.]+(?:\.[^\s@.]+)+$/.test(normalized)) {
+    return bad('সঠিক ইমেইল অ্যাড্রেস দাও', normalized);
+  }
+  return ok(normalized);
+}
 
 
+// Bump when the shape of a stored state changes, or when chapter ids are renumbered.
+// A returning student with an older version is reset rather than mis-scored.
+const SCHEMA_VERSION = 1;
+const STORAGE_KEY = 'tor-syllabus-tracker-v1';
+
+const FLOW = ['landing', 'class', 'batch', 'group', 'subjects', 'syllabus', 'lead', 'result'];
+function createState() {
+  return {
+    version: SCHEMA_VERSION,
+    screen: 'landing',
+    name: '',
+    institute: '',
+    level: null,
+    batch: null,
+    group: null,
+    selectedSubjects: [],
+    checked: [],
+    enrolled: null,
+    phone: '',
+    email: '',
+    submitted: false,
+  };
+}
+function toggleChapter(state, id) {
+  const has = state.checked.includes(id);
+  return {
+    ...state,
+    checked: has ? state.checked.filter((c) => c !== id) : [...state.checked, id],
+  };
+}
+function setSubjects(state, ids, allSubjects) {
+  const keptIds = new Set(ids);
+  const liveChapters = new Set(
+    allSubjects
+      .filter((s) => keptIds.has(s.id))
+      .flatMap((s) => s.papers.flatMap((p) => p.chapters.map((c) => c.id))),
+  );
+  return {
+    ...state,
+    selectedSubjects: ids,
+    checked: state.checked.filter((id) => liveChapters.has(id)),
+  };
+}
+
+function step(state, delta) {
+  const i = FLOW.indexOf(state.screen);
+  if (i === -1) return null;
+  let next = i + delta;
+  // SSC has fixed subjects, so the picker is skipped in both directions.
+  if (FLOW[next] === 'subjects' && !needsSubjectPicker(state.level)) next += delta;
+  return FLOW[next] ?? null;
+}
+const nextScreen = (state) => step(state, 1);
+const prevScreen = (state) => step(state, -1);
+function serialize(state) {
+  return JSON.stringify(state);
+}
+function deserialize(raw) {
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw);
+    if (!parsed || parsed.version !== SCHEMA_VERSION) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+// Every storage call is guarded: Safari private mode and some in-app webviews
+// throw on setItem, and a thrown quota error must never take the page down.
+function save(state, storage) {
+  try {
+    storage.setItem(STORAGE_KEY, serialize(state));
+  } catch {
+    /* ignore */
+  }
+}
+function load(storage) {
+  try {
+    return deserialize(storage.getItem(STORAGE_KEY));
+  } catch {
+    return null;
+  }
+}
+function clear(storage) {
+  try {
+    storage.removeItem(STORAGE_KEY);
+  } catch {
+    /* ignore */
+  }
+}
 
 
 
