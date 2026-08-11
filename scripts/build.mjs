@@ -37,16 +37,33 @@ const readIfPresent = (p) => {
 
 // Strips ESM syntax so the concatenated result runs inside a plain <script>.
 // Every module shares one IIFE scope, so cross-module references resolve naturally.
-function stripModuleSyntax(source) {
-  return source
-    .replace(/^\s*import\s+[^;]*?;\s*$/gm, '')
-    .replace(/^\s*export\s+(?=(?:default\s+)?(?:const|let|var|function|class|async)\b)/gm, '')
-    .replace(/^\s*export\s*\{[^}]*\}\s*;?\s*$/gm, '');
+export function stripModuleSyntax(source, filePath = '<unknown>') {
+  // Strip imports (with or without trailing semicolon)
+  source = source.replace(/^\s*import\s+[^;]*?;?\s*$/gm, '');
+
+  // Strip export default function/class/async function (declaration forms)
+  source = source.replace(/^\s*export\s+default\s+((?:async\s+)?function|class)\b/gm, '$1');
+
+  // Detect and reject anonymous default exports (literals and expressions)
+  if (/^\s*export\s+default\s+/m.test(source)) {
+    throw new Error(`Anonymous default export in ${filePath} — use a named export instead.`);
+  }
+
+  // Strip named exports (const/let/var/function/class/async function)
+  source = source.replace(/^\s*export\s+(?=(?:const|let|var|function|class|async)\b)/gm, '');
+
+  // Strip export { ... }
+  source = source.replace(/^\s*export\s*\{[^}]*\}\s*;?\s*$/gm, '');
+
+  return source;
 }
 
 export function buildHtml() {
   const styles = STYLES.map(readIfPresent).join('\n');
-  const script = MODULES.map(readIfPresent).map(stripModuleSyntax).join('\n');
+  const script = MODULES.map((path) => {
+    const source = readIfPresent(path);
+    return stripModuleSyntax(source, path);
+  }).join('\n');
   return read('src/index.html')
     .replace('{{STYLES}}', () => styles)
     .replace('{{SCRIPT}}', () => `(function(){\n'use strict';\n${script}\n})();`);

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { buildHtml } from '../scripts/build.mjs';
+import { buildHtml, stripModuleSyntax } from '../scripts/build.mjs';
 
 test('build inlines styles into a style tag', () => {
   const html = buildHtml();
@@ -32,4 +32,87 @@ test('build references no external script or stylesheet except google fonts', ()
 test('build carries the product name into the title', () => {
   const html = buildHtml();
   assert.match(html, /<title>তোর সিলেবাস শেষ হইসে ট্র্যাকার<\/title>/);
+});
+
+test('extracted script parses as valid javascript', () => {
+  const html = buildHtml();
+  const script = html.slice(html.indexOf('<script>') + 8, html.lastIndexOf('</script>'));
+  assert.doesNotThrow(() => new Function(script));
+});
+
+test('stripModuleSyntax strips export default function', () => {
+  const input = 'export default function foo() {}';
+  const output = stripModuleSyntax(input);
+  assert.match(output, /^function foo\(\) \{\}$/);
+  assert.doesNotThrow(() => new Function(output));
+});
+
+test('stripModuleSyntax strips export default class', () => {
+  const input = 'export default class Foo {}';
+  const output = stripModuleSyntax(input);
+  assert.match(output, /^class Foo \{\}$/);
+  assert.doesNotThrow(() => new Function(output));
+});
+
+test('stripModuleSyntax strips export default async function', () => {
+  const input = 'export default async function f() {}';
+  const output = stripModuleSyntax(input);
+  assert.match(output, /^async function f\(\) \{\}$/);
+  assert.doesNotThrow(() => new Function(output));
+});
+
+test('stripModuleSyntax rejects anonymous default export (literal)', () => {
+  const input = 'export default 42;';
+  assert.throws(
+    () => stripModuleSyntax(input, 'test-file.js'),
+    /Anonymous default export in test-file\.js/
+  );
+});
+
+test('stripModuleSyntax rejects anonymous default export (object)', () => {
+  const input = 'export default { a: 1 };';
+  assert.throws(
+    () => stripModuleSyntax(input, 'another-file.js'),
+    /Anonymous default export in another-file\.js/
+  );
+});
+
+test('stripModuleSyntax strips named exports', () => {
+  const inputs = [
+    'export const CONFIG = {};',
+    'export let state = 42;',
+    'export var x = 1;',
+    'export function boot() {}',
+    'export class Tracker {}',
+    'export async function load() {}',
+  ];
+  for (const input of inputs) {
+    const output = stripModuleSyntax(input);
+    assert.ok(!output.includes('export'), `export keyword remains in: ${input}`);
+    assert.doesNotThrow(() => new Function(output), `invalid output for: ${input}`);
+  }
+});
+
+test('stripModuleSyntax strips import statements with semicolon', () => {
+  const input = "import { CONFIG } from '../data/config.js';";
+  const output = stripModuleSyntax(input);
+  assert.strictEqual(output.trim(), '');
+});
+
+test('stripModuleSyntax strips import statements without semicolon', () => {
+  const input = "import { CONFIG } from '../data/config.js'";
+  const output = stripModuleSyntax(input);
+  assert.strictEqual(output.trim(), '');
+});
+
+test('stripModuleSyntax strips export { ... }', () => {
+  const inputs = [
+    'export { foo, bar };',
+    'export { foo, bar }',
+    'export {\n  foo,\n  bar,\n};',
+  ];
+  for (const input of inputs) {
+    const output = stripModuleSyntax(input);
+    assert.ok(!output.includes('export'), `export remains in: ${input}`);
+  }
 });

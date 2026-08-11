@@ -6,6 +6,6 @@
   "description": "তোর সিলেবাস শেষ হইসে ট্র্যাকার — syllabus completion tracker for Edge Course BD",
   "scripts": {
     "build": "node scripts/build.mjs",
-    "test": "node --test tests/"
+    "test": "node --test"
   }
 }
