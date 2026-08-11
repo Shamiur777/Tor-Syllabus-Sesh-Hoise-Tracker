@@ -1,8 +1,13 @@
-# Syllabus Completion Tracker — Design
+# তোর সিলেবাস শেষ হইসে ট্র্যাকার — Design
 
 **Date:** 2026-08-11
+**Product name:** তোর সিলেবাস শেষ হইসে ট্র্যাকার
 **Client:** Edge Course BD (`edgecoursebd.com`)
 **Brands:** Infinity School (SSC) · Hulkenstein (HSC)
+**Repository:** https://github.com/Shamiur777/Tor-Syllabus-Sesh-Hoise-Tracker
+
+The product name appears as the page title, the `<title>` tag, the Open Graph title, and the
+heading on the landing screen. It is not translated or transliterated anywhere in the interface.
 
 ## Purpose
 
@@ -207,7 +212,13 @@ Extends the existing client design system rather than introducing a new one:
 
 ## Deliverables
 
+Everything the `edgecoursebd.com` developer needs is committed and pushed to
+`https://github.com/Shamiur777/Tor-Syllabus-Sesh-Hoise-Tracker` — not the HTML alone, but the
+Apps Script source, both setup guides, the placeholder asset tree, and a repository `README.md`
+that orients a developer arriving cold with no context from this engagement.
+
 ```
+README.md
 syllabus-tracker.html
 images/
   infinity-logo.png
