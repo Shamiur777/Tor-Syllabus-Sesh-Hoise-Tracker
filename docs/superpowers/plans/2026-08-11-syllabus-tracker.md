@@ -103,7 +103,7 @@ and `npm install` is never run.
   "description": "তোর সিলেবাস শেষ হইসে ট্র্যাকার — syllabus completion tracker for Edge Course BD",
   "scripts": {
     "build": "node scripts/build.mjs",
-    "test": "node --test tests/"
+    "test": "node --test"
   }
 }
 ```
@@ -824,7 +824,7 @@ Expected: PASS, 11 tests.
 `src/data/syllabus.js` and `src/lib/subjects.js` are already listed in `MODULES` in
 `scripts/build.mjs`, so no edit is needed.
 
-Run: `node scripts/build.mjs && node --test tests/`
+Run: `node scripts/build.mjs && node --test`
 Expected: build succeeds; all tests pass.
 
 - [ ] **Step 7: Commit**
@@ -1351,7 +1351,7 @@ Expected: PASS, 13 tests.
 
 - [ ] **Step 5: Run the whole suite and rebuild**
 
-Run: `node --test tests/ && node scripts/build.mjs`
+Run: `node --test && node scripts/build.mjs`
 Expected: all tests pass; build succeeds.
 
 - [ ] **Step 6: Commit**
@@ -1676,7 +1676,7 @@ Create `src/styles/screens.css`:
 
 - [ ] **Step 4: Rebuild and verify the styles landed**
 
-Run: `node scripts/build.mjs && node --test tests/`
+Run: `node scripts/build.mjs && node --test`
 Expected: build succeeds, all tests pass. Confirm `syllabus-tracker.html` contains `.choice` and
 `--accent` by searching the generated file.
 
@@ -1895,7 +1895,7 @@ if (typeof document !== 'undefined') boot();
 
 - [ ] **Step 3: Rebuild and test in a browser**
 
-Run: `node scripts/build.mjs && node --test tests/`
+Run: `node scripts/build.mjs && node --test`
 Expected: all pass.
 
 Open `syllabus-tracker.html` in a browser and verify by hand:
@@ -2263,7 +2263,7 @@ In `src/lib/main.js`, add to the `handlers` object:
 
 - [ ] **Step 7: Run tests, rebuild, verify by hand**
 
-Run: `node --test tests/ && node scripts/build.mjs`
+Run: `node --test && node scripts/build.mjs`
 Expected: all tests pass, including the three new routing tests.
 
 In a browser:
@@ -2765,7 +2765,7 @@ const utm = captureUtm(typeof location === 'undefined' ? '' : location.search);
 
 - [ ] **Step 7: Run tests, rebuild, verify end to end**
 
-Run: `node --test tests/ && node scripts/build.mjs`
+Run: `node --test && node scripts/build.mjs`
 Expected: all pass.
 
 Serve the file over HTTP (a `file://` origin will not POST correctly):
@@ -3109,7 +3109,7 @@ In `src/data/config.js`:
 
 - [ ] **Step 5: Run the full suite and rebuild**
 
-Run: `node --test tests/ && node scripts/build.mjs`
+Run: `node --test && node scripts/build.mjs`
 Expected: all tests pass. The uniqueness tests in `tests/subjects.test.js` will catch duplicated
 chapter ids introduced during transcription — this is exactly what they are for.
 
@@ -3207,7 +3207,7 @@ git commit -m "fix: responsive and accessibility pass across all breakpoints"
 Create `README.md` covering, for a developer arriving with no context:
 
 - What the tool is, in two sentences, with the Bengali product name.
-- Quick start: `node scripts/build.mjs` to build, `node --test tests/` to test, no `npm install` ever.
+- Quick start: `node scripts/build.mjs` to build, `node --test` to test, no `npm install` ever.
 - The `src/` → `syllabus-tracker.html` relationship, stated as a warning: never hand-edit the built file.
 - How to add or change a subject or chapter, with a worked example from `src/data/syllabus.js`.
 - Why chapter ids must never be reused, and the `SCHEMA_VERSION` bump that follows a renumbering.
@@ -3277,7 +3277,7 @@ test('build references no external script or stylesheet except google fonts', ()
 - [ ] **Step 4: Run the full suite, rebuild, commit**
 
 ```bash
-node --test tests/ && node scripts/build.mjs
+node --test && node scripts/build.mjs
 git add README.md INTEGRATION-NOTES.md src/index.html tests/build.test.js syllabus-tracker.html
 git commit -m "docs: add README and integration notes for the deploying developer"
 ```
@@ -3289,7 +3289,7 @@ git commit -m "docs: add README and integration notes for the deploying develope
 - [ ] **Step 1: Confirm the tree is clean and the build is current**
 
 ```bash
-node --test tests/ && node scripts/build.mjs && git status --short
+node --test && node scripts/build.mjs && git status --short
 ```
 
 Expected: all tests pass, and `git status` is empty. A dirty `syllabus-tracker.html` here means
