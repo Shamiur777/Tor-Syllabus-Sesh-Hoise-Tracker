@@ -1,83 +1,3 @@
-<!DOCTYPE html>
-<html lang="bn">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>তোর সিলেবাস শেষ হইসে ট্র্যাকার</title>
-<meta name="description" content="তোর SSC বা HSC সিলেবাসের কতটুকু শেষ হইসে, এক মিনিটে বের করো।">
-<meta property="og:title" content="তোর সিলেবাস শেষ হইসে ট্র্যাকার">
-<meta property="og:description" content="তোর SSC বা HSC সিলেবাসের কতটুকু শেষ হইসে, এক মিনিটে বের করো।">
-<meta property="og:type" content="website">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Baloo+Da+2:wght@500;600;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>:root {
-  --font-display: 'Baloo Da 2', system-ui, sans-serif;
-  --font-body: 'Hind Siliguri', system-ui, sans-serif;
-}
-
-
-</style>
-</head>
-<body>
-<div id="app"></div>
-<script>(function(){
-'use strict';
-const CONFIG = {
-  // Filled in during Task 12 after the Apps Script web app is deployed.
-  appsScriptUrl: '',
-
-  // Enrolment destinations. Supplied by the client in Task 15.
-  enrolUrls: {
-    ssc: '',
-    hsc: '',
-  },
-
-  // Inclusive percentage bands, evaluated in order. Retune here, not in code.
-  tiers: {
-    27: [
-      { id: 'batch27-tier1', min: 0, max: 29 },
-      { id: 'batch27-tier2', min: 30, max: 49 },
-      { id: 'batch27-tier3', min: 50, max: 69 },
-      { id: 'batch27-tier4', min: 70, max: 100 },
-    ],
-    28: [
-      { id: 'batch28-tier1', min: 0, max: 10 },
-      { id: 'batch28-tier2', min: 11, max: 30 },
-      { id: 'batch28-tier3', min: 31, max: 60 },
-      { id: 'batch28-tier4', min: 61, max: 100 },
-    ],
-  },
-
-  // Colours sampled from the supplied logo artwork. `logoBg` is the logo file's own
-  // opaque background — used behind the logo chip and as the result-image backdrop,
-  // so each logo sits on the page as though it were designed there.
-  brands: {
-    ssc: {
-      name: 'Infinity School',
-      logo: 'images/infinity-logo.png',
-      logoBg: '#ffffff',
-      accent: '#0a6cf0',
-      accentInk: '#ffffff',
-      secondary: '#f5a81c',
-      canvasBg: '#f7fafd',
-      canvasInk: '#0d1b2a',
-      canvasInkSoft: '#5a6b7d',
-    },
-    hsc: {
-      name: 'Hulkenstein',
-      logo: 'images/hulkenstein-logo.png',
-      logoBg: '#000000',
-      accent: '#22a94c',
-      accentInk: '#04140a',
-      secondary: '#ffffff',
-      canvasBg: '#07090a',
-      canvasInk: '#f2f5f3',
-      canvasInkSoft: '#9aa8a0',
-    },
-  },
-};
-
 // PLACEHOLDER CONTENT — replaced with the client's real syllabus in Task 15.
 // Shape is final; only chapter names and counts change.
 //
@@ -237,70 +157,13 @@ const buildBatch = (batch) => ({
 
 const b27 = buildBatch('27');
 const b28 = buildBatch('28');
-const SYLLABUS = {
+
+export const SYLLABUS = {
   ssc: { 27: b27.ssc, 28: b28.ssc },
   hsc: { 27: b27.hsc, 28: b28.hsc },
 };
-const GROUP_LABELS = {
+
+export const GROUP_LABELS = {
   ssc: { science: 'বিজ্ঞান', arts: 'মানবিক', commerce: 'ব্যবসায় শিক্ষা' },
   hsc: { science: 'বিজ্ঞান', business: 'ব্যবসায় শিক্ষা', humanities: 'মানবিক' },
 };
-
-
-const GROUP_ORDER = {
-  ssc: ['science', 'arts', 'commerce'],
-  hsc: ['science', 'business', 'humanities'],
-};
-function getGroups(level) {
-  return GROUP_ORDER[level] ? [...GROUP_ORDER[level]] : [];
-}
-
-// SSC subject sets are fixed, so SSC students skip the picker entirely.
-function needsSubjectPicker(level) {
-  return level === 'hsc';
-}
-function getSubjects(level, batch, group) {
-  const entry = SYLLABUS[level]?.[batch]?.[group];
-  if (!entry) return [];
-  return Object.entries(entry.subjects).map(([id, s]) => ({ id, ...s }));
-}
-function getDefaultSelectedIds(level, batch, group) {
-  return getSubjects(level, batch, group)
-    .filter((s) => s.compulsory || s.defaultSelected)
-    .map((s) => s.id);
-}
-function countChapters(subjects) {
-  return subjects.reduce(
-    (total, s) => total + s.papers.reduce((n, p) => n + p.chapters.length, 0),
-    0,
-  );
-}
-function allChapterIds(subjects) {
-  return subjects.flatMap((s) => s.papers.flatMap((p) => p.chapters.map((c) => c.id)));
-}
-
-function resolveTier(percent, batch) {
-  const bands = CONFIG.tiers[batch];
-  if (!bands) throw new RangeError(`Unknown batch: ${batch}`);
-  const clamped = Math.min(100, Math.max(0, Math.round(percent)));
-  const index = bands.findIndex((b) => clamped >= b.min && clamped <= b.max);
-  const resolved = index === -1 ? bands.length - 1 : index;
-  return { index: resolved, ...bands[resolved] };
-}
-
-
-
-
-
-
-
-function boot() {
-  document.getElementById('app').textContent = '';
-  return CONFIG;
-}
-
-boot();
-
-})();</script>
-</body>
-</html>
