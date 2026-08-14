@@ -137,11 +137,17 @@ export function renderApp(root, state, handlers) {
   );
 }
 
-import { getSubjects } from './subjects.js';
+import { getSubjects, getDefaultSelectedIds } from './subjects.js';
 
 registerScreen('subjects', (state, h) => {
   const subjects = getSubjects(state.level, state.batch, state.group);
-  const chosen = new Set(state.selectedSubjects);
+  // A student arriving fresh (selectedSubjects empty) sees the standard
+  // combination pre-ticked; a student navigating back keeps their choices.
+  const chosen = new Set(
+    state.selectedSubjects.length
+      ? state.selectedSubjects
+      : getDefaultSelectedIds(state.level, state.batch, state.group),
+  );
   const warn = el('p', { class: 'field__error' });
 
   const rows = subjects.map((s) => {
@@ -170,6 +176,11 @@ registerScreen('subjects', (state, h) => {
         class: 'btn btn--primary', type: 'button', text: 'সিলেবাস দেখাও',
         onclick: () => {
           if (chosen.size === 0) { warn.textContent = 'অন্তত একটা সাবজেক্ট বেছে নাও'; return; }
+          // Belt-and-braces: never trust a disabled checkbox to have carried a
+          // compulsory subject through to `chosen` — union it in explicitly so
+          // this, the client's core completion calculation, can't silently
+          // drop a required subject.
+          subjects.filter((s) => s.compulsory).forEach((s) => chosen.add(s.id));
           h.onSetSubjects([...chosen]);
           h.onNext();
         },
