@@ -1,6 +1,12 @@
 import { createState, load, save, clear, nextScreen, prevScreen, toggleChapter, setSubjects } from './state.js';
 import { getDefaultSelectedIds, getSubjects, needsSubjectPicker } from './subjects.js';
 import { renderApp } from './ui.js';
+import { captureUtm, buildPayload, trackEvent } from './tracking.js';
+import { submitLead } from './submit.js';
+import { computeCompletion, resolveTier } from './scoring.js';
+
+// Captured once at load, before any navigation could alter the query string.
+const utm = captureUtm(typeof location === 'undefined' ? '' : location.search);
 
 export function boot() {
   const root = document.getElementById('app');
@@ -40,8 +46,18 @@ export function boot() {
     onSetSubjects: (ids) => commit(setSubjects(state, ids, getSubjects(state.level, state.batch, state.group))),
     onEnrol: (value) => commit({ ...state, enrolled: value }),
     onSubmitLead: async ({ phone, email }) => {
-      // Submission is wired in Task 13. Never block the result on it.
-      commit({ ...state, phone, email, screen: 'result' });
+      const next = { ...state, phone, email };
+      const subjects = getSubjects(next.level, next.batch, next.group)
+        .filter((s) => next.selectedSubjects.includes(s.id));
+      const result = computeCompletion(subjects, new Set(next.checked));
+      const tier = resolveTier(result.percent, next.batch);
+
+      trackEvent('lead_submit', { level: next.level, batch: next.batch, percent: result.percent });
+      // The result must never wait on the network. Fire and move on.
+      submitLead(buildPayload(next, subjects, result, tier, utm))
+        .then((ok) => { if (!ok) console.warn('Lead was not recorded'); });
+
+      commit({ ...next, submitted: true, screen: 'result' });
     },
     onReset: () => { if (storage) clear(storage); commit(createState()); },
   };

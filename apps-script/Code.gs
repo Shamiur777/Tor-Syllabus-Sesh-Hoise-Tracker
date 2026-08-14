@@ -55,7 +55,10 @@ function doGet(e) {
  */
 function doPost(e) {
   try {
-    var payload = JSON.parse(e.postData.contents);
+    var raw = (e.postData && e.postData.contents) || '';
+    // The hidden-form fallback arrives as a normal form field instead.
+    if (e.parameter && e.parameter.payload) raw = e.parameter.payload;
+    var payload = JSON.parse(raw);
     appendLead_(payload);
     return json_({ ok: true });
   } catch (err) {

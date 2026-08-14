@@ -699,7 +699,109 @@ function clear(storage) {
   }
 }
 
+const TRACKED = [
+  'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term',
+  'fbclid', 'gclid', 'ttclid', 'msclkid',
+];
+function captureUtm(search) {
+  const params = new URLSearchParams(search || '');
+  const out = {};
+  for (const key of TRACKED) out[key] = params.get(key) || '';
+  return out;
+}
+function buildPayload(state, subjects, result, tier, utm) {
+  return {
+    name: state.name,
+    institute: state.institute,
+    level: state.level,
+    batch: state.batch,
+    group: state.group,
+    subjects: subjects.map((s) => s.name).join(', '),
+    percent: result.percent,
+    tier: tier.id,
+    phone: state.phone,
+    email: state.email,
+    enrolled: state.enrolled === true,
+    utm_source: utm.utm_source || '',
+    utm_campaign: utm.utm_campaign || '',
+  };
+}
 
+// No-ops safely when GA4 or the Meta Pixel are absent, which is the default.
+function trackEvent(name, params = {}) {
+  try {
+    if (typeof window.gtag === 'function') window.gtag('event', name, params);
+    if (typeof window.fbq === 'function') window.fbq('trackCustom', name, params);
+  } catch {
+    /* analytics must never break the page */
+  }
+}
+
+
+// Apps Script does not answer CORS preflight requests. Sending the body as
+// text/plain keeps the request "simple" so no preflight is issued at all;
+// the endpoint reads it from e.postData.contents regardless of the header.
+async function postJson(url, payload) {
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(payload),
+    redirect: 'follow',
+  });
+  return res.ok;
+}
+
+// Fallback for in-app webviews that block or mangle fetch. A form POST into a
+// hidden iframe cannot be read back, so success is assumed; a dropped lead is
+// preferable to a student stuck on a spinner.
+function postViaForm(url, payload) {
+  return new Promise((resolve) => {
+    const name = `s${Date.now()}`;
+    const iframe = document.createElement('iframe');
+    iframe.name = name;
+    iframe.style.display = 'none';
+
+    const form = document.createElement('form');
+    form.action = url;
+    form.method = 'POST';
+    form.target = name;
+    form.style.display = 'none';
+
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'payload';
+    input.value = JSON.stringify(payload);
+    form.append(input);
+
+    document.body.append(iframe, form);
+    iframe.addEventListener('load', () => {
+      iframe.remove();
+      form.remove();
+      resolve(true);
+    });
+    form.submit();
+    setTimeout(() => resolve(true), 4000);
+  });
+}
+async function submitLead(payload) {
+  const url = CONFIG.appsScriptUrl;
+  if (!url) {
+    console.warn('CONFIG.appsScriptUrl is empty — lead not sent. See SETUP-APPS-SCRIPT.md');
+    return false;
+  }
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      if (await postJson(url, payload)) return true;
+    } catch (err) {
+      console.warn('Lead submission attempt failed', err);
+    }
+  }
+  try {
+    return await postViaForm(url, payload);
+  } catch {
+    return false;
+  }
+}
 
 
 function el(tag, props = {}, ...children) {
@@ -1020,6 +1122,14 @@ registerScreen('lead', (state, h) => {
   );
 });
 
+
+
+
+
+
+
+// Captured once at load, before any navigation could alter the query string.
+const utm = captureUtm(typeof location === 'undefined' ? '' : location.search);
 function boot() {
   const root = document.getElementById('app');
   const storage = (() => {
@@ -1058,8 +1168,18 @@ function boot() {
     onSetSubjects: (ids) => commit(setSubjects(state, ids, getSubjects(state.level, state.batch, state.group))),
     onEnrol: (value) => commit({ ...state, enrolled: value }),
     onSubmitLead: async ({ phone, email }) => {
-      // Submission is wired in Task 13. Never block the result on it.
-      commit({ ...state, phone, email, screen: 'result' });
+      const next = { ...state, phone, email };
+      const subjects = getSubjects(next.level, next.batch, next.group)
+        .filter((s) => next.selectedSubjects.includes(s.id));
+      const result = computeCompletion(subjects, new Set(next.checked));
+      const tier = resolveTier(result.percent, next.batch);
+
+      trackEvent('lead_submit', { level: next.level, batch: next.batch, percent: result.percent });
+      // The result must never wait on the network. Fire and move on.
+      submitLead(buildPayload(next, subjects, result, tier, utm))
+        .then((ok) => { if (!ok) console.warn('Lead was not recorded'); });
+
+      commit({ ...next, submitted: true, screen: 'result' });
     },
     onReset: () => { if (storage) clear(storage); commit(createState()); },
   };
