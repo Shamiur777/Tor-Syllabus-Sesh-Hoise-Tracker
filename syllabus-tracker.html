@@ -1151,7 +1151,7 @@ function progressDock(percent, completed, total) {
 
   return el('div', { class: 'dock' }, svg,
     el('div', {},
-      el('div', { class: 'dock__pct', text: `${percent}%` }),
+      el('div', { class: 'dock__pct', 'aria-live': 'polite', text: `${percent}%` }),
       el('div', { class: 'dock__meta', text: `${completed} / ${total} চ্যাপ্টার শেষ` })),
   );
 }
@@ -1207,10 +1207,19 @@ registerScreen('syllabus', (state, h) => {
       }
     }
 
-    const head = el('button', { class: 'accordion__head', type: 'button' },
+    // The screen fully re-renders on every chapter tick (see onToggleChapter in
+    // main.js), so the initial aria-expanded value must match the initial
+    // `hidden` state above (first accordion open, rest closed) rather than
+    // assuming a default — there is no persistent DOM to fall back on.
+    const head = el('button', {
+      class: 'accordion__head', type: 'button', 'aria-expanded': i === 0 ? 'true' : 'false',
+    },
       el('span', { style: 'flex:1' }, s.name),
       el('span', { class: 'dock__meta', text: `${row.completed}/${row.total}` }));
-    head.addEventListener('click', () => { body.hidden = !body.hidden; });
+    head.addEventListener('click', () => {
+      body.hidden = !body.hidden;
+      head.setAttribute('aria-expanded', body.hidden ? 'false' : 'true');
+    });
 
     const bar = el('div', { class: 'bar', style: 'margin:0 16px 12px' },
       el('div', { class: 'bar__fill', style: `width:${row.percent}%` }));
