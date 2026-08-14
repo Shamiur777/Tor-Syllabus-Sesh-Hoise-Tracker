@@ -57,11 +57,20 @@ function screenLanding(state, h) {
       el('button', {
         class: 'btn btn--primary', type: 'button', text: 'শুরু করো',
         onclick: () => {
-          const n = validateName(state.name);
-          const i = validateInstitute(state.institute);
+          // Validate the live input elements, not the `state` this closure was
+          // rendered with: onField updates state on every keystroke but never
+          // re-renders (so the field never loses focus), which means a captured
+          // `state` parameter would forever read the value from initial render.
+          // The DOM nodes are the true, always-current source at submit time.
+          const n = validateName(nameInput.value);
+          const i = validateInstitute(instInput.value);
           nameErr.textContent = n.error;
           instErr.textContent = i.error;
-          if (n.valid && i.valid) h.onNext();
+          if (n.valid && i.valid) {
+            h.onField('name', n.normalized);
+            h.onField('institute', i.normalized);
+            h.onNext();
+          }
         },
       }),
     ),

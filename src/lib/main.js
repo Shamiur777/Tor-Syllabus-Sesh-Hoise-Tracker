@@ -17,6 +17,12 @@ export function boot() {
   };
 
   const handlers = {
+    // Live accessor: screens that read state inside a deferred callback (e.g. a
+    // button's onclick, captured at render time) must call this instead of
+    // closing over the `state` parameter they were rendered with — onField
+    // deliberately does not re-render, so a captured parameter goes stale the
+    // moment the student keeps typing.
+    getState: () => state,
     onField: (key, value) => { state = { ...state, [key]: value }; if (storage) save(state, storage); },
     onNext: () => commit({ ...state, screen: nextScreen(state) ?? state.screen }),
     onBack: () => commit({ ...state, screen: prevScreen(state) ?? state.screen }),
