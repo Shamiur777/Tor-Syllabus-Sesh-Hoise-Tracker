@@ -15,14 +15,20 @@ test('build inlines script into a script tag', () => {
 });
 
 test('build emits no module syntax that breaks in a plain script tag', () => {
-  const html = buildHtml();
+  // Comments stripped first: the commented-out GA4/Meta Pixel blocks in
+  // src/index.html contain their own <script> tags, which would otherwise
+  // be the first match and shift this slice off the real bundled script.
+  const html = buildHtml().replace(/<!--[\s\S]*?-->/g, '');
   const script = html.slice(html.indexOf('<script>'), html.lastIndexOf('</script>'));
   assert.ok(!/^\s*import\s/m.test(script), 'import statements must be stripped');
   assert.ok(!/^\s*export\s/m.test(script), 'export keywords must be stripped');
 });
 
 test('build references no external script or stylesheet except google fonts', () => {
-  const html = buildHtml();
+  // Commented-out GA4/Meta Pixel blocks in src/index.html carry src/href
+  // attributes that are inert inside an HTML comment but still present in
+  // the string, so comments are stripped before scanning.
+  const html = buildHtml().replace(/<!--[\s\S]*?-->/g, '');
   const externals = [...html.matchAll(/(?:src|href)="(https?:\/\/[^"]+)"/g)].map((m) => m[1]);
   for (const url of externals) {
     assert.match(url, /^https:\/\/fonts\.(googleapis|gstatic)\.com/, `unexpected external: ${url}`);
@@ -35,7 +41,9 @@ test('build carries the product name into the title', () => {
 });
 
 test('extracted script parses as valid javascript', () => {
-  const html = buildHtml();
+  // Same reason as above: strip comments so the commented-out placeholder
+  // <script> tags don't shift the slice off the real bundled script.
+  const html = buildHtml().replace(/<!--[\s\S]*?-->/g, '');
   const script = html.slice(html.indexOf('<script>') + 8, html.lastIndexOf('</script>'));
   assert.doesNotThrow(() => new Function(script));
 });
