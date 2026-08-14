@@ -348,6 +348,20 @@ const CONFIG = {
       canvasInkSoft: '#9aa8a0',
     },
   },
+
+  // Shareable result-image artwork per batch/tier. Placeholders on disk now;
+  // the client replaces these files in Task 15 without any code change.
+  resultImages: {
+    'batch27-tier1': 'images/results/batch27-tier1.png',
+    'batch27-tier2': 'images/results/batch27-tier2.png',
+    'batch27-tier3': 'images/results/batch27-tier3.png',
+    'batch27-tier4': 'images/results/batch27-tier4.png',
+    'batch28-tier1': 'images/results/batch28-tier1.png',
+    'batch28-tier2': 'images/results/batch28-tier2.png',
+    'batch28-tier3': 'images/results/batch28-tier3.png',
+    'batch28-tier4': 'images/results/batch28-tier4.png',
+  },
+  canvas: { width: 1080, height: 1920 },
 };
 
 // PLACEHOLDER CONTENT — replaced with the client's real syllabus in Task 15.
@@ -804,6 +818,139 @@ async function submitLead(payload) {
 }
 
 
+function loadImage(src) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    // Same-origin in production, but this keeps toBlob working if assets ever
+    // move to a CDN that sends the right headers. A tainted canvas cannot export.
+    img.crossOrigin = 'anonymous';
+    img.onload = () => resolve(img);
+    img.onerror = () => resolve(null);
+    img.src = src;
+  });
+}
+
+// Bengali needs complex text shaping. Canvas fillText shapes correctly through
+// the platform engine, but only once the webfont is actually loaded — otherwise
+// conjuncts render as tofu boxes. Waiting here is not optional.
+async function ensureFonts() {
+  if (!document.fonts) return;
+  await Promise.all([
+    document.fonts.load('800 96px "Baloo Da 2"'),
+    document.fonts.load('600 48px "Hind Siliguri"'),
+  ]);
+  await document.fonts.ready;
+}
+
+function fitText(ctx, text, maxWidth, startPx, font) {
+  let size = startPx;
+  ctx.font = font(size);
+  while (ctx.measureText(text).width > maxWidth && size > 20) {
+    size -= 2;
+    ctx.font = font(size);
+  }
+  return size;
+}
+async function renderResultImage({ name, institute, percent, tier, level }) {
+  await ensureFonts();
+
+  const { width, height } = CONFIG.canvas;
+  const brand = CONFIG.brands[level];
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d');
+
+  // The exported image follows the same theme as the page: light for SSC,
+  // dark for HSC, so a downloaded result looks like the tool that made it.
+  ctx.fillStyle = brand.canvasBg;
+  ctx.fillRect(0, 0, width, height);
+
+  const [bg, logo] = await Promise.all([
+    loadImage(CONFIG.resultImages[tier.id]),
+    loadImage(brand.logo),
+  ]);
+
+  // Tier artwork is anchored to the bottom, scaled to the full width.
+  if (bg) {
+    const scale = width / bg.width;
+    const drawH = bg.height * scale;
+    ctx.drawImage(bg, 0, height - drawH, width, drawH);
+  }
+
+  // The logo sits on a rounded chip in its own background colour. On both themes
+  // the chip matches the canvas backdrop and is invisible; it only shows itself
+  // if a future logo ships with a different background.
+  if (logo) {
+    const logoH = 120;
+    const logoW = logo.width * (logoH / logo.height);
+    const pad = 18;
+    ctx.fillStyle = brand.logoBg;
+    // roundRect landed in Safari 16.4; fall back to a plain rect on older iOS.
+    if (typeof ctx.roundRect === 'function') {
+      ctx.beginPath();
+      ctx.roundRect(60 - pad, 60 - pad, logoW + pad * 2, logoH + pad * 2, 20);
+      ctx.fill();
+    } else {
+      ctx.fillRect(60 - pad, 60 - pad, logoW + pad * 2, logoH + pad * 2);
+    }
+    ctx.drawImage(logo, 60, 60, logoW, logoH);
+  }
+
+  ctx.textAlign = 'center';
+  ctx.fillStyle = brand.canvasInk;
+
+  const nameSize = fitText(ctx, name, width - 200, 76, (s) => `800 ${s}px "Baloo Da 2", sans-serif`);
+  ctx.font = `800 ${nameSize}px "Baloo Da 2", sans-serif`;
+  ctx.fillText(name, width / 2, 330);
+
+  const instSize = fitText(ctx, institute, width - 220, 44, (s) => `600 ${s}px "Hind Siliguri", sans-serif`);
+  ctx.font = `600 ${instSize}px "Hind Siliguri", sans-serif`;
+  ctx.fillStyle = brand.canvasInkSoft;
+  ctx.fillText(institute, width / 2, 400);
+
+  ctx.fillStyle = brand.accent;
+  ctx.font = '800 220px "Baloo Da 2", sans-serif';
+  ctx.fillText(`${percent}%`, width / 2, 620);
+
+  ctx.fillStyle = brand.canvasInkSoft;
+  ctx.font = '600 42px "Hind Siliguri", sans-serif';
+  ctx.fillText('সিলেবাস শেষ', width / 2, 685);
+
+  return canvas;
+}
+
+function toBlob(canvas) {
+  return new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
+}
+async function downloadCanvas(canvas, filename) {
+  const blob = await toBlob(canvas);
+  if (!blob) return false;
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.append(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  // iOS Safari ignores the download attribute entirely, so the caller always
+  // shows the long-press instruction as well rather than trusting this.
+  return true;
+}
+async function shareCanvas(canvas, filename) {
+  const blob = await toBlob(canvas);
+  if (!blob) return false;
+  const file = new File([blob], filename, { type: 'image/png' });
+  if (!navigator.canShare || !navigator.canShare({ files: [file] })) return false;
+  try {
+    await navigator.share({ files: [file] });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function el(tag, props = {}, ...children) {
   const node = document.createElement(tag);
   for (const [k, v] of Object.entries(props)) {
@@ -1118,6 +1265,64 @@ registerScreen('lead', (state, h) => {
         target: '_blank', rel: 'noopener', text: 'কোর্স দেখে আসো',
         style: 'display:inline-flex;align-items:center;justify-content:center;text-decoration:none',
       }),
+    ),
+  );
+});
+
+registerScreen('result', (state, h) => {
+  const all = getSubjects(state.level, state.batch, state.group);
+  const subjects = all.filter((s) => state.selectedSubjects.includes(s.id));
+  const { percent, completed, total } = computeCompletion(subjects, new Set(state.checked));
+  const tier = resolveTier(percent, state.batch);
+
+  const pct = el('div', { class: 'result__pct', text: '0%' });
+  const preview = el('img', { class: 'result__img', alt: 'তোমার রেজাল্ট' });
+  const hint = el('p', { class: 'dock__meta' });
+  const filename = `syllabus-${state.name.replace(/\s+/g, '-')}-${percent}pc.png`;
+
+  // Count up rather than snapping, so the number reads as an achievement.
+  let shown = 0;
+  const tick = setInterval(() => {
+    shown += Math.max(1, Math.ceil(percent / 30));
+    if (shown >= percent) { shown = percent; clearInterval(tick); }
+    pct.textContent = `${shown}%`;
+  }, 28);
+
+  let canvas = null;
+  // The object below is built from primitives (name, institute, percent, tier,
+  // level) at call time, before renderResultImage's internal await runs — the
+  // .then callback only ever touches the local `canvas`/`preview` variables it
+  // closes over, never the outer `state`, so it can't read a stale value even
+  // though onField mutates `state` without a re-render.
+  renderResultImage({ name: state.name, institute: state.institute, percent, tier, level: state.level })
+    .then((c) => { canvas = c; preview.src = c.toDataURL('image/png'); })
+    .catch((err) => { console.warn('Result image failed', err); hint.textContent = 'ছবি বানাতে সমস্যা হয়েছে, স্ক্রিনশট নিয়ে নাও।'; });
+
+  return el('section', { class: 'screen is-active result' },
+    el('h2', { class: 'hero__title', text: `${state.name}, তোমার রেজাল্ট` }),
+    pct,
+    el('p', { class: 'dock__meta', text: `${completed} / ${total} চ্যাপ্টার শেষ` }),
+    preview,
+    hint,
+    el('div', { class: 'result__actions' },
+      el('button', {
+        class: 'btn btn--primary', type: 'button', text: 'ছবি ডাউনলোড করো',
+        onclick: async () => {
+          if (!canvas) return;
+          await downloadCanvas(canvas, filename);
+          hint.textContent = 'ডাউনলোড না হলে উপরের ছবিটা চেপে ধরে সেভ করো।';
+        },
+      }),
+      el('button', {
+        class: 'btn btn--ghost', type: 'button', text: 'শেয়ার করো',
+        onclick: async () => {
+          if (!canvas) return;
+          if (!(await shareCanvas(canvas, filename))) {
+            hint.textContent = 'শেয়ার করা যায়নি — ছবিটা ডাউনলোড করে পোস্ট করো।';
+          }
+        },
+      }),
+      el('button', { class: 'btn btn--ghost', type: 'button', text: 'শুরু থেকে করো', onclick: h.onReset }),
     ),
   );
 });

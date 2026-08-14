@@ -58,4 +58,18 @@ export const CONFIG = {
       canvasInkSoft: '#9aa8a0',
     },
   },
+
+  // Shareable result-image artwork per batch/tier. Placeholders on disk now;
+  // the client replaces these files in Task 15 without any code change.
+  resultImages: {
+    'batch27-tier1': 'images/results/batch27-tier1.png',
+    'batch27-tier2': 'images/results/batch27-tier2.png',
+    'batch27-tier3': 'images/results/batch27-tier3.png',
+    'batch27-tier4': 'images/results/batch27-tier4.png',
+    'batch28-tier1': 'images/results/batch28-tier1.png',
+    'batch28-tier2': 'images/results/batch28-tier2.png',
+    'batch28-tier3': 'images/results/batch28-tier3.png',
+    'batch28-tier4': 'images/results/batch28-tier4.png',
+  },
+  canvas: { width: 1080, height: 1920 },
 };

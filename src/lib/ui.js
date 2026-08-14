@@ -190,7 +190,7 @@ registerScreen('subjects', (state, h) => {
   );
 });
 
-import { computeCompletion, computeSubjectBreakdown } from './scoring.js';
+import { computeCompletion, computeSubjectBreakdown, resolveTier } from './scoring.js';
 
 const RING_CIRCUMFERENCE = 326.7; // 2πr, r = 52
 
@@ -323,6 +323,66 @@ registerScreen('lead', (state, h) => {
         target: '_blank', rel: 'noopener', text: 'কোর্স দেখে আসো',
         style: 'display:inline-flex;align-items:center;justify-content:center;text-decoration:none',
       }),
+    ),
+  );
+});
+
+import { renderResultImage, downloadCanvas, shareCanvas } from './canvas.js';
+
+registerScreen('result', (state, h) => {
+  const all = getSubjects(state.level, state.batch, state.group);
+  const subjects = all.filter((s) => state.selectedSubjects.includes(s.id));
+  const { percent, completed, total } = computeCompletion(subjects, new Set(state.checked));
+  const tier = resolveTier(percent, state.batch);
+
+  const pct = el('div', { class: 'result__pct', text: '0%' });
+  const preview = el('img', { class: 'result__img', alt: 'তোমার রেজাল্ট' });
+  const hint = el('p', { class: 'dock__meta' });
+  const filename = `syllabus-${state.name.replace(/\s+/g, '-')}-${percent}pc.png`;
+
+  // Count up rather than snapping, so the number reads as an achievement.
+  let shown = 0;
+  const tick = setInterval(() => {
+    shown += Math.max(1, Math.ceil(percent / 30));
+    if (shown >= percent) { shown = percent; clearInterval(tick); }
+    pct.textContent = `${shown}%`;
+  }, 28);
+
+  let canvas = null;
+  // The object below is built from primitives (name, institute, percent, tier,
+  // level) at call time, before renderResultImage's internal await runs — the
+  // .then callback only ever touches the local `canvas`/`preview` variables it
+  // closes over, never the outer `state`, so it can't read a stale value even
+  // though onField mutates `state` without a re-render.
+  renderResultImage({ name: state.name, institute: state.institute, percent, tier, level: state.level })
+    .then((c) => { canvas = c; preview.src = c.toDataURL('image/png'); })
+    .catch((err) => { console.warn('Result image failed', err); hint.textContent = 'ছবি বানাতে সমস্যা হয়েছে, স্ক্রিনশট নিয়ে নাও।'; });
+
+  return el('section', { class: 'screen is-active result' },
+    el('h2', { class: 'hero__title', text: `${state.name}, তোমার রেজাল্ট` }),
+    pct,
+    el('p', { class: 'dock__meta', text: `${completed} / ${total} চ্যাপ্টার শেষ` }),
+    preview,
+    hint,
+    el('div', { class: 'result__actions' },
+      el('button', {
+        class: 'btn btn--primary', type: 'button', text: 'ছবি ডাউনলোড করো',
+        onclick: async () => {
+          if (!canvas) return;
+          await downloadCanvas(canvas, filename);
+          hint.textContent = 'ডাউনলোড না হলে উপরের ছবিটা চেপে ধরে সেভ করো।';
+        },
+      }),
+      el('button', {
+        class: 'btn btn--ghost', type: 'button', text: 'শেয়ার করো',
+        onclick: async () => {
+          if (!canvas) return;
+          if (!(await shareCanvas(canvas, filename))) {
+            hint.textContent = 'শেয়ার করা যায়নি — ছবিটা ডাউনলোড করে পোস্ট করো।';
+          }
+        },
+      }),
+      el('button', { class: 'btn btn--ghost', type: 'button', text: 'শুরু থেকে করো', onclick: h.onReset }),
     ),
   );
 });
