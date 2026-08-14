@@ -876,6 +876,75 @@ registerScreen('subjects', (state, h) => {
   );
 });
 
+const RING_CIRCUMFERENCE = 326.7; // 2πr, r = 52
+
+function progressDock(percent, completed, total) {
+  // Built with createElementNS rather than el(), because el() uses
+  // createElement and would produce an unstyled HTMLUnknownElement for <svg>.
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('class', 'ring');
+  svg.setAttribute('viewBox', '0 0 120 120');
+  svg.setAttribute('width', '64');
+  svg.setAttribute('height', '64');
+  svg.innerHTML =
+    `<circle class="ring__track" cx="60" cy="60" r="52"></circle>` +
+    `<circle class="ring__fill" cx="60" cy="60" r="52" ` +
+    `style="stroke-dashoffset:${RING_CIRCUMFERENCE * (1 - percent / 100)}"></circle>`;
+
+  return el('div', { class: 'dock' }, svg,
+    el('div', {},
+      el('div', { class: 'dock__pct', text: `${percent}%` }),
+      el('div', { class: 'dock__meta', text: `${completed} / ${total} চ্যাপ্টার শেষ` })),
+  );
+}
+
+registerScreen('syllabus', (state, h) => {
+  const all = getSubjects(state.level, state.batch, state.group);
+  const chosen = new Set(state.selectedSubjects);
+  const subjects = all.filter((s) => chosen.has(s.id));
+  const checked = new Set(state.checked);
+
+  const { completed, total, percent } = computeCompletion(subjects, checked);
+  const breakdown = new Map(computeSubjectBreakdown(subjects, checked).map((r) => [r.id, r]));
+
+  const accordions = subjects.map((s, i) => {
+    const row = breakdown.get(s.id);
+    const body = el('div', { class: 'accordion__body', hidden: i !== 0 });
+
+    for (const paper of s.papers) {
+      if (paper.name) body.append(el('h3', { class: 'dock__meta', text: paper.name }));
+      for (const c of paper.chapters) {
+        body.append(el('label', { class: 'check' },
+          el('input', {
+            type: 'checkbox', checked: checked.has(c.id),
+            onchange: () => h.onToggleChapter(c.id),
+          }),
+          el('span', { class: 'check__label', text: c.name })));
+      }
+    }
+
+    const head = el('button', { class: 'accordion__head', type: 'button' },
+      el('span', { style: 'flex:1' }, s.name),
+      el('span', { class: 'dock__meta', text: `${row.completed}/${row.total}` }));
+    head.addEventListener('click', () => { body.hidden = !body.hidden; });
+
+    const bar = el('div', { class: 'bar', style: 'margin:0 16px 12px' },
+      el('div', { class: 'bar__fill', style: `width:${row.percent}%` }));
+
+    return el('div', { class: 'accordion' }, head, bar, body);
+  });
+
+  return el('section', { class: 'screen is-active' },
+    progressDock(percent, completed, total),
+    el('h2', { class: 'hero__title', text: 'যেগুলো শেষ, টিক দাও' }),
+    el('div', { class: 'stack' }, ...accordions),
+    el('div', { id: 'enrol-slot' }),
+    el('div', { class: 'stack' },
+      el('button', { class: 'btn btn--ghost', type: 'button', text: 'শুরু থেকে করো', onclick: h.onReset }),
+    ),
+  );
+});
+
 function boot() {
   const root = document.getElementById('app');
   const storage = (() => {
