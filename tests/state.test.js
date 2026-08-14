@@ -127,3 +127,8 @@ test('going back from the result screen skips the lead form for enrolled student
   const enrolled = { ...createState(), screen: 'result', level: 'hsc', enrolled: true };
   assert.equal(prevScreen(enrolled), 'syllabus');
 });
+
+test('going back from the lead form returns a non-enrolled student to syllabus', () => {
+  const notEnrolled = { ...createState(), screen: 'lead', level: 'hsc', enrolled: false };
+  assert.equal(prevScreen(notEnrolled), 'syllabus');
+});

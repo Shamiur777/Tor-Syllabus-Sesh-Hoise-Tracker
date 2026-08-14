@@ -332,6 +332,7 @@ registerScreen('lead', (state, h) => {
         target: '_blank', rel: 'noopener', text: 'কোর্স দেখে আসো',
         style: 'display:inline-flex;align-items:center;justify-content:center;text-decoration:none',
       }),
+      el('button', { class: 'btn btn--ghost', type: 'button', text: 'পিছনে', onclick: h.onBack }),
     ),
   );
 });

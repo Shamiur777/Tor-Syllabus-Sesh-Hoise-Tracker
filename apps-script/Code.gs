@@ -38,13 +38,17 @@ function json_(obj) {
 /** Visiting the web app URL in a browser runs this. Used to verify deployment. */
 function doGet(e) {
   if (e && e.parameter && e.parameter.test === '1') {
-    appendLead_({
-      name: 'TEST ROW', institute: 'TEST', level: 'hsc', batch: '27',
-      group: 'science', subjects: 'Physics, ICT', percent: 42,
-      tier: 'batch27-tier2', phone: '01700000000', email: 'test@example.com',
-      utm_source: 'manual-test', utm_campaign: 'setup'
-    });
-    return json_({ ok: true, wrote: 'test row' });
+    try {
+      appendLead_({
+        name: 'TEST ROW', institute: 'TEST', level: 'hsc', batch: '27',
+        group: 'science', subjects: 'Physics, ICT', percent: 42,
+        tier: 'batch27-tier2', phone: '01700000000', email: 'test@example.com',
+        utm_source: 'manual-test', utm_campaign: 'setup'
+      });
+      return json_({ ok: true, wrote: 'test row' });
+    } catch (err) {
+      return json_({ ok: false, error: String(err) });
+    }
   }
   return json_({ ok: true, message: 'Endpoint is live. Append ?test=1 to write a test row.' });
 }
@@ -67,22 +71,36 @@ function doPost(e) {
 }
 
 function appendLead_(p) {
-  var sheet = getSheet_();
-  sheet.appendRow([
-    new Date(),
-    p.name || '',
-    p.institute || '',
-    (p.level || '').toUpperCase(),
-    p.batch || '',
-    p.group || '',
-    p.subjects || '',
-    p.percent === undefined ? '' : p.percent,
-    p.tier || '',
-    // Leading apostrophe keeps Sheets from stripping the leading zero.
-    p.phone ? "'" + p.phone : '',
-    p.email || '',
-    p.enrolled === true ? 'Yes' : 'No',
-    p.utm_source || '',
-    p.utm_campaign || ''
-  ]);
+  // doPost runs concurrently for "Anyone" deployments, so the read-check-then-append
+  // sequence in getSheet_ (bootstrapping the header) and the appendRow below must be
+  // serialised. Without this, two simultaneous first-ever submissions can both see
+  // getLastRow() === 0 and both write a header row, and two simultaneous submissions
+  // in general can race on appendRow and lose a lead.
+  var lock = LockService.getScriptLock();
+  var acquired = lock.tryLock(30000);
+  if (!acquired) {
+    throw new Error('Could not acquire lock to write lead — please retry.');
+  }
+  try {
+    var sheet = getSheet_();
+    sheet.appendRow([
+      new Date(),
+      p.name || '',
+      p.institute || '',
+      (p.level || '').toUpperCase(),
+      p.batch || '',
+      p.group || '',
+      p.subjects || '',
+      p.percent === undefined ? '' : p.percent,
+      p.tier || '',
+      // Leading apostrophe keeps Sheets from stripping the leading zero.
+      p.phone ? "'" + p.phone : '',
+      p.email || '',
+      p.enrolled === true ? 'Yes' : 'No',
+      p.utm_source || '',
+      p.utm_campaign || ''
+    ]);
+  } finally {
+    lock.releaseLock();
+  }
 }
