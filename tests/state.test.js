@@ -112,3 +112,18 @@ test('going back from the syllabus screen mirrors the forward skip', () => {
 test('the landing screen has nowhere to go back to', () => {
   assert.equal(prevScreen(createState()), null);
 });
+
+test('enrolled students skip the lead form entirely', () => {
+  const enrolled = { ...createState(), screen: 'syllabus', level: 'hsc', enrolled: true };
+  assert.equal(nextScreen(enrolled), 'result');
+});
+
+test('non-enrolled students are routed through the lead form', () => {
+  const not = { ...createState(), screen: 'syllabus', level: 'hsc', enrolled: false };
+  assert.equal(nextScreen(not), 'lead');
+});
+
+test('going back from the result screen skips the lead form for enrolled students', () => {
+  const enrolled = { ...createState(), screen: 'result', level: 'hsc', enrolled: true };
+  assert.equal(prevScreen(enrolled), 'syllabus');
+});

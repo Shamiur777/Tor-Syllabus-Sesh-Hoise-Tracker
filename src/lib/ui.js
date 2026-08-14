@@ -1,7 +1,7 @@
 import { CONFIG } from '../data/config.js';
 import { getGroups } from './subjects.js';
 import { GROUP_LABELS } from '../data/syllabus.js';
-import { validateName, validateInstitute } from './validation.js';
+import { validateName, validateInstitute, validatePhone, validateEmail } from './validation.js';
 
 export function el(tag, props = {}, ...children) {
   const node = document.createElement(tag);
@@ -214,6 +214,32 @@ function progressDock(percent, completed, total) {
   );
 }
 
+function enrolBlock(state, h) {
+  const course = CONFIG.copy.courseName[state.level];
+  const verdict = el('p', { class: 'enrol__verdict' });
+
+  if (state.enrolled === true) verdict.textContent = CONFIG.copy.enrolledYes;
+  if (state.enrolled === false) verdict.textContent = CONFIG.copy.enrolledNo;
+
+  const pick = (value) =>
+    el('button', {
+      class: `choice${state.enrolled === value ? ' is-selected' : ''}`,
+      type: 'button', text: value ? 'হ্যাঁ' : 'না',
+      onclick: () => h.onEnrol(value),
+    });
+
+  return el('div', { class: 'enrol', id: 'enrol-slot' },
+    el('h3', { text: `তুমি কি ${course}-এ এনরোল করা আছো?` }),
+    el('div', { class: 'stack' }, pick(true), pick(false)),
+    verdict,
+    state.enrolled !== null && el('button', {
+      class: 'btn btn--primary', type: 'button', text: 'রেজাল্ট দেখাও',
+      style: 'margin-top:16px',
+      onclick: h.onNext,
+    }),
+  );
+}
+
 registerScreen('syllabus', (state, h) => {
   const all = getSubjects(state.level, state.batch, state.group);
   const chosen = new Set(state.selectedSubjects);
@@ -254,9 +280,49 @@ registerScreen('syllabus', (state, h) => {
     progressDock(percent, completed, total),
     el('h2', { class: 'hero__title', text: 'যেগুলো শেষ, টিক দাও' }),
     el('div', { class: 'stack' }, ...accordions),
-    el('div', { id: 'enrol-slot' }),
+    enrolBlock(state, h),
     el('div', { class: 'stack' },
       el('button', { class: 'btn btn--ghost', type: 'button', text: 'শুরু থেকে করো', onclick: h.onReset }),
+    ),
+  );
+});
+
+registerScreen('lead', (state, h) => {
+  const phoneErr = el('span', { class: 'field__error' });
+  const emailErr = el('span', { class: 'field__error' });
+  const phoneInput = el('input', {
+    class: 'field__input', type: 'tel', inputmode: 'numeric',
+    placeholder: '০১৭xxxxxxxx', value: state.phone, autocomplete: 'tel',
+  });
+  const emailInput = el('input', {
+    class: 'field__input', type: 'email', inputmode: 'email',
+    placeholder: 'tomar@email.com', value: state.email, autocomplete: 'email',
+  });
+
+  const submit = el('button', { class: 'btn btn--primary', type: 'button', text: 'রেজাল্ট দেখাও' });
+  submit.addEventListener('click', async () => {
+    const p = validatePhone(phoneInput.value);
+    const e = validateEmail(emailInput.value);
+    phoneErr.textContent = p.error;
+    emailErr.textContent = e.error;
+    if (!p.valid || !e.valid) return;
+    submit.disabled = true;
+    submit.textContent = 'পাঠানো হচ্ছে...';
+    await h.onSubmitLead({ phone: p.normalized, email: e.normalized });
+  });
+
+  return el('section', { class: 'screen is-active' },
+    el('h2', { class: 'hero__title', text: CONFIG.copy.enrolledNo }),
+    el('p', { class: 'hero__sub', text: 'নাম্বার আর ইমেইল দাও, আমরা তোমাকে কোর্সের ডিটেইলস পাঠিয়ে দিবো।' }),
+    el('div', { class: 'stack stagger' },
+      el('label', { class: 'field' }, el('span', { class: 'field__label', text: 'মোবাইল নাম্বার' }), phoneInput, phoneErr),
+      el('label', { class: 'field' }, el('span', { class: 'field__label', text: 'ইমেইল' }), emailInput, emailErr),
+      submit,
+      CONFIG.enrolUrls[state.level] && el('a', {
+        class: 'btn btn--ghost', href: CONFIG.enrolUrls[state.level],
+        target: '_blank', rel: 'noopener', text: 'কোর্স দেখে আসো',
+        style: 'display:inline-flex;align-items:center;justify-content:center;text-decoration:none',
+      }),
     ),
   );
 });

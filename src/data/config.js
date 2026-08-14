@@ -8,6 +8,13 @@ export const CONFIG = {
     hsc: '',
   },
 
+  copy: {
+    // These two strings are fixed by the client. Do not reword.
+    enrolledYes: 'সাব্বাশ, রাইট ট্র্যাকেই আছো!',
+    enrolledNo: 'এভাবে ত মামা তোমার সিলেবাস জীবনেও শেষ হবে না! আজই এনরোল করো।',
+    courseName: { ssc: 'Complete Academic Program (CAP)', hsc: 'Academic to Admission Course' },
+  },
+
   // Inclusive percentage bands, evaluated in order. Retune here, not in code.
   tiers: {
     27: [

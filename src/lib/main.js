@@ -38,6 +38,11 @@ export function boot() {
     },
     onToggleChapter: (id) => commit(toggleChapter(state, id)),
     onSetSubjects: (ids) => commit(setSubjects(state, ids, getSubjects(state.level, state.batch, state.group))),
+    onEnrol: (value) => commit({ ...state, enrolled: value }),
+    onSubmitLead: async ({ phone, email }) => {
+      // Submission is wired in Task 13. Never block the result on it.
+      commit({ ...state, phone, email, screen: 'result' });
+    },
     onReset: () => { if (storage) clear(storage); commit(createState()); },
   };
 

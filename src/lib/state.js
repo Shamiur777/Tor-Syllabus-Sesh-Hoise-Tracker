@@ -53,6 +53,8 @@ function step(state, delta) {
   let next = i + delta;
   // SSC has fixed subjects, so the picker is skipped in both directions.
   if (FLOW[next] === 'subjects' && !needsSubjectPicker(state.level)) next += delta;
+  // Enrolled students are never asked for contact details.
+  if (FLOW[next] === 'lead' && state.enrolled === true) next += delta;
   return FLOW[next] ?? null;
 }
 
