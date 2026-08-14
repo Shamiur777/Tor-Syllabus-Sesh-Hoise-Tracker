@@ -136,3 +136,45 @@ export function renderApp(root, state, handlers) {
     el('div', { class: 'wrap' }, topbar(state), render ? render(state, handlers) : el('p', { text: '...' })),
   );
 }
+
+import { getSubjects } from './subjects.js';
+
+registerScreen('subjects', (state, h) => {
+  const subjects = getSubjects(state.level, state.batch, state.group);
+  const chosen = new Set(state.selectedSubjects);
+  const warn = el('p', { class: 'field__error' });
+
+  const rows = subjects.map((s) => {
+    const box = el('input', {
+      type: 'checkbox',
+      checked: chosen.has(s.id),
+      disabled: s.compulsory,
+      onchange: (e) => {
+        if (e.target.checked) chosen.add(s.id);
+        else chosen.delete(s.id);
+        warn.textContent = '';
+      },
+    });
+    return el('label', { class: `check${s.compulsory ? ' is-locked' : ''}` }, box,
+      el('span', { class: 'check__label' }, s.name,
+        s.compulsory && el('small', { class: 'dock__meta', text: '  (আবশ্যিক)' })));
+  });
+
+  return el('section', { class: 'screen is-active' },
+    el('h2', { class: 'hero__title', text: 'তোমার সাবজেক্টগুলো বেছে নাও' }),
+    el('p', { class: 'hero__sub', text: 'যেগুলো তুমি নিয়েছো শুধু সেগুলোই টিক দাও। আবশ্যিক সাবজেক্ট আগে থেকেই টিক দেওয়া।' }),
+    el('div', { class: 'card', style: 'padding:10px;margin-top:20px' }, ...rows),
+    warn,
+    el('div', { class: 'stack' },
+      el('button', {
+        class: 'btn btn--primary', type: 'button', text: 'সিলেবাস দেখাও',
+        onclick: () => {
+          if (chosen.size === 0) { warn.textContent = 'অন্তত একটা সাবজেক্ট বেছে নাও'; return; }
+          h.onSetSubjects([...chosen]);
+          h.onNext();
+        },
+      }),
+      el('button', { class: 'btn btn--ghost', type: 'button', text: 'পিছনে', onclick: h.onBack }),
+    ),
+  );
+});
