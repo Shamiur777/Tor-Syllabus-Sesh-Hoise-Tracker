@@ -2,10 +2,30 @@ export const CONFIG = {
   // Filled in during Task 12 after the Apps Script web app is deployed.
   appsScriptUrl: 'https://script.google.com/macros/s/AKfycbyO3QV2kPDJvrQ_bpYet_Ab2UcgiscO9hWJXSw3a6F6DFnKkgUZd6qX3iun12G90AOc/exec',
 
-  // Enrolment destinations. Supplied by the client in Task 15.
+  // Enrolment destinations, supplied by the client 2026-08-19.
+  //
+  // Looked up most-specific-first by resolveEnrolUrl() in src/lib/enrol.js:
+  //   `<level>-<batch>-<group>`  ->  `<level>-<batch>`  ->  `<level>`
+  // so a group-specific course wins over the batch's general programme, and a
+  // plain level key still works as a catch-all. A missing key is not an error —
+  // the "কোর্স দেখে আসো" button is simply omitted rather than pointing nowhere.
   enrolUrls: {
-    ssc: '',
-    hsc: '',
+    // Business Studies students get the group-specific programme.
+    'ssc-27-commerce': 'https://edgecoursebd.com/courses/518',
+    'ssc-28-commerce': 'https://edgecoursebd.com/courses/519',
+    // Everyone else on that batch gets the general Academic Comeback Program.
+    // Batch 27 is Class 10, batch 28 is Class 9.
+    'ssc-27': 'https://edgecoursebd.com/courses/480',
+    'ssc-28': 'https://edgecoursebd.com/courses/481',
+    // HSC — Academic to Admission courses.
+    'hsc-28-science': 'https://edgecoursebd.com/courses/570',
+    'hsc-28-humanities': 'https://edgecoursebd.com/courses/571',
+    'hsc-28-business': 'https://edgecoursebd.com/courses/572',
+    'hsc-27-humanities': 'https://edgecoursebd.com/courses/347',
+    'hsc-27-business': 'https://edgecoursebd.com/courses/353',
+    // "HSC27 Academic to Admission Course (Revive)" names no group, but arts and
+    // business are both explicit above, so this is the science one by elimination.
+    'hsc-27-science': 'https://edgecoursebd.com/courses/346',
   },
 
   copy: {

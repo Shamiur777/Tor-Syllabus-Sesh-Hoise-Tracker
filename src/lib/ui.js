@@ -2,6 +2,7 @@ import { CONFIG } from '../data/config.js';
 import { getGroups } from './subjects.js';
 import { GROUP_LABELS } from '../data/syllabus.js';
 import { validateName, validateInstitute, validatePhone, validateEmail } from './validation.js';
+import { resolveEnrolUrl } from './enrol.js';
 
 export function el(tag, props = {}, ...children) {
   const node = document.createElement(tag);
@@ -359,8 +360,8 @@ registerScreen('lead', (state, h) => {
       el('label', { class: 'field' }, el('span', { class: 'field__label', text: 'মোবাইল নাম্বার' }), phoneInput, phoneErr),
       el('label', { class: 'field' }, el('span', { class: 'field__label', text: 'ইমেইল' }), emailInput, emailErr),
       submit,
-      CONFIG.enrolUrls[state.level] && el('a', {
-        class: 'btn btn--ghost', href: CONFIG.enrolUrls[state.level],
+      resolveEnrolUrl(state.level, state.batch, state.group) && el('a', {
+        class: 'btn btn--ghost', href: resolveEnrolUrl(state.level, state.batch, state.group),
         target: '_blank', rel: 'noopener', text: 'কোর্স দেখে আসো',
         style: 'display:inline-flex;align-items:center;justify-content:center;text-decoration:none',
       }),

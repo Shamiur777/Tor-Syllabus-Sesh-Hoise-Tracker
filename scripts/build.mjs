@@ -17,6 +17,7 @@ const MODULES = [
   'src/lib/subjects.js',
   'src/lib/scoring.js',
   'src/lib/validation.js',
+  'src/lib/enrol.js',
   'src/lib/state.js',
   'src/lib/tracking.js',
   'src/lib/submit.js',

@@ -27,9 +27,12 @@ overwritten in place.
 - **`CONFIG.appsScriptUrl`** (`src/data/config.js`) — currently empty. Until this is set, lead
   submissions are silently skipped (a console warning fires, the student still reaches the
   result screen). See `SETUP-APPS-SCRIPT.md` for how to get this URL.
-- **`CONFIG.enrolUrls`** (`src/data/config.js`) — currently empty for both `ssc` and `hsc`.
-  Until set, the "কোর্স দেখে আসো" link on the lead screen is simply omitted rather than pointing
-  nowhere.
+- **`CONFIG.enrolUrls`** (`src/data/config.js`) — populated for all 12 level/batch/group
+  combinations. It is a flat map read most-specific-first by `resolveEnrolUrl()`
+  (`src/lib/enrol.js`): `<level>-<batch>-<group>` then `<level>-<batch>` then `<level>`. Add a
+  group-specific key to override a batch's general programme. A missing key omits the
+  "কোর্স দেখে আসো" link rather than pointing nowhere, and `tests/enrol.test.js` fails if any
+  group a student can pick has no url.
 - **`CONFIG.tiers`** (`src/data/config.js`) — the percentage bands that decide which result
   image a student sees, per batch. Retune the `min`/`max` values here directly; do not touch the
   tier-resolution code in `src/lib/scoring.js`.

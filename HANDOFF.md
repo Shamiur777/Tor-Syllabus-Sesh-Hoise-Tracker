@@ -220,8 +220,35 @@ Sheet: `1hnoInIk37frhk6DBIxGWOkSjN9PAkOj9f_pbL3rCwRI`
 
 ### 3. Also unfilled
 
-- `CONFIG.enrolUrls.ssc` / `.hsc` — the CAP and Academic-to-Admission course URLs.
-  Until set, the "কোর্স দেখে আসো" link is omitted rather than pointing nowhere.
+**Where should `SSC 27 LastShot Revision Batch` (courses/566) go?** It is the one
+supplied URL with no home. The lead screen renders a single link, so the options
+are: ignore it; use it for SSC 27 instead of the Academic Comeback Program; or
+show it as a second link for SSC 27 only. Needs a client decision.
+
+- ~~`CONFIG.enrolUrls`~~ — **done 2026-08-19.** All 12 level/batch/group
+  combinations resolve to a real course. The config was keyed by level alone,
+  which could not express the client's batch- and group-specific courses, so it
+  is now a flat map read most-specific-first by `resolveEnrolUrl()` in
+  `src/lib/enrol.js`:
+
+      `<level>-<batch>-<group>`  ->  `<level>-<batch>`  ->  `<level>`
+
+  A group-specific course therefore wins over the batch's general programme, and
+  a missing key still omits the button rather than rendering a dead link.
+  `tests/enrol.test.js` walks every group in `SYLLABUS` and fails if any student
+  the UI can produce would reach the lead screen with no course to go to — so
+  adding a group without adding its URL breaks the build rather than shipping a
+  blank button. Verified in the browser too: HSC 28 business renders
+  `courses/572`, SSC 27 commerce renders `courses/518` (not the general 480).
+
+  One judgement call: `HSC27 Academic to Admission Course (Revive)` (346) names
+  no group. Arts (347) and business (353) were supplied explicitly, so 346 is
+  mapped to `hsc-27-science` by elimination. Worth a client confirmation.
+
+  Not wired: `SSC 27 LastShot Revision Batch`
+  (`https://edgecoursebd.com/courses/566`). It is a revision batch rather than
+  the academic programme the lead screen points at, and the screen shows one
+  link, so it needs a rule — see below.
 - GA4 and Meta Pixel blocks in `src/index.html` are present but commented out.
 
 ---
