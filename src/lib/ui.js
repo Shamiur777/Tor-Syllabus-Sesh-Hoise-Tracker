@@ -2,7 +2,7 @@ import { CONFIG } from '../data/config.js';
 import { getGroups } from './subjects.js';
 import { GROUP_LABELS } from '../data/syllabus.js';
 import { validateName, validateInstitute, validatePhone, validateEmail } from './validation.js';
-import { resolveEnrolUrl } from './enrol.js';
+import { resolveEnrolUrl, resolveEnrolLabel } from './enrol.js';
 
 export function el(tag, props = {}, ...children) {
   const node = document.createElement(tag);
@@ -448,6 +448,17 @@ registerScreen('result', (state, h) => {
   const hint = el('p', { class: 'dock__meta' });
   const filename = `syllabus-${state.name.replace(/\s+/g, '-')}-${percent}pc.png`;
 
+  // Shown to every student regardless of enrolled status -- a call to action,
+  // not a lookup tool. Uses the accent/accent-ink pairing (the same as the
+  // primary button, and the canvas caption bar) so it reads as a bright,
+  // legible banner rather than the near-black canvas backdrop colour.
+  const enrolUrl = resolveEnrolUrl(state.level, state.batch, state.group);
+  const enrolLabel = resolveEnrolLabel(state.level, state.batch, state.group);
+  const enrolBanner = enrolUrl && el('a', {
+    class: 'result__enrol', href: enrolUrl, target: '_blank', rel: 'noopener',
+    text: `${enrolLabel}-এ এনরোল করো এখনই`,
+  });
+
   // Count up rather than snapping, so the number reads as an achievement.
   let shown = 0;
   const tick = setInterval(() => {
@@ -472,6 +483,7 @@ registerScreen('result', (state, h) => {
     el('p', { class: 'dock__meta', text: `${completed} / ${total} চ্যাপ্টার শেষ` }),
     preview,
     hint,
+    enrolBanner,
     el('div', { class: 'result__actions' },
       el('button', {
         class: 'btn btn--primary', type: 'button', text: 'ছবি ডাউনলোড করো',

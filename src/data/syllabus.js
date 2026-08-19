@@ -382,52 +382,6 @@ function sscScience(batch) {
   };
 }
 
-function sscArts(batch) {
-  const p = `ssc${batch}`;
-  const todo = (id, label) => ({
-    name: label, compulsory: true, defaultSelected: true,
-    papers: [{ name: '', chapters: ch(`${p}-${id}-x`, TODO) }],
-  });
-  return {
-    ...sscCompulsory(p),
-    ...sscOptional(p),
-    geography: todo('geo', 'ভূগোল ও পরিবেশ (Geography and Environment)'),
-    civics: {
-      name: 'পৌরনীতি ও নাগরিকতা (Civics and Citizenship) [যাচাই করতে হবে]', compulsory: true, defaultSelected: true,
-      papers: [{ name: '', chapters: ch(`${p}-civics-x`, [
-        'পৌরনীতি ও নাগরিকতা',
-        'আইন, স্বাধীনতা ও সাম্য',
-        'রাষ্ট্র ও সরকার',
-        'বাংলাদেশের সরকার ব্যবস্থা',
-        'স্থানীয় সরকার',
-        'মানবাধিকার',
-      ]) }],
-    },
-    history: {
-      name: 'বাংলাদেশের ইতিহাস ও বিশ্বসভ্যতা (History)', compulsory: true, defaultSelected: true,
-      papers: [{ name: '', chapters: ch(`${p}-history-x`, [
-        'বিশ্বসভ্যতা',
-        'প্রাচীন বাংলার রাজনৈতিক ইতিহাস',
-        'মধ্যযুগের বাংলার রাজনৈতিক ইতিহাস',
-        'বাংলায় ইংরেজ শাসনের সূচনাপর্ব',
-        'ইংরেজ শাসনামলে বাংলায় প্রতিরোধ ও সংগ্রাম',
-        'সত্তরের নির্বাচন ও মুক্তিযুদ্ধ',
-      ]) }],
-    },
-    economics: {
-      name: 'অর্থনীতি (Economics) [যাচাই করতে হবে]', compulsory: true, defaultSelected: true,
-      papers: [{ name: '', chapters: ch(`${p}-eco-x`, [
-        'অর্থনীতির গুরুত্ব',
-        'উপযোগ, চাহিদা, যোগান',
-        'উৎপাদন ও সংগঠন',
-        'জাতীয় আয় ও এর পরিমাপ',
-        'অর্থ ও ব্যাংক ব্যবস্থা',
-        'বাংলাদেশ সরকারের রাজস্বনীতি',
-      ]) }],
-    },
-  };
-}
-
 // Real content, read from the client's 2027 SSC Commerce syllabus PDF.
 function sscCommerce(batch) {
   const p = `ssc${batch}`;
@@ -508,8 +462,17 @@ function sscCommerce(batch) {
 /* ---------------------------------------------------------------- HSC ---- */
 
 // Real content, from the client's HSC syllabus file.
-function hscScience(batch) {
-  const p = `hsc${batch}`;
+/* --------------------------------------------------- HSC compulsory ----
+ * Bangla, English and ICT are the same national subjects for every HSC
+ * group -- client confirmed 2026-08-20 that Science, Business and
+ * Humanities all sit the same syllabus for these three, so they are one
+ * shared definition rather than three copies that could drift (the same
+ * reasoning as sscCompulsory() above). Content is the client-supplied
+ * `syllabus-source/HSC Syllabus.txt`, previously only wired into
+ * hscScience(); Business and Humanities had no Bangla/English at all before
+ * this and only a duplicated copy of this exact ICT block.
+ */
+function hscCompulsory(p) {
   return {
     bangla: {
       name: 'বাংলা ১ম পত্র (Bangla 1st Paper)', compulsory: true, defaultSelected: true,
@@ -572,6 +535,13 @@ function hscScience(batch) {
         'ডেটাবেজ ম্যানেজমেন্ট সিস্টেম',
       ]) }],
     },
+  };
+}
+
+function hscScience(batch) {
+  const p = `hsc${batch}`;
+  return {
+    ...hscCompulsory(p),
     physics: {
       name: 'পদার্থবিজ্ঞান (Physics)', compulsory: true, defaultSelected: true,
       papers: [
@@ -694,17 +664,7 @@ function hscBusiness(batch) {
     ],
   });
   return {
-    ict: {
-      name: 'তথ্য ও যোগাযোগ প্রযুক্তি (ICT)', compulsory: true, defaultSelected: true,
-      papers: [{ name: '', chapters: ch(`${p}-ict-x`, [
-        'বিশ্ব ও বাংলাদেশ প্রেক্ষিত',
-        'কমিউনিকেশন সিস্টেমস ও নেটওয়ার্কিং',
-        'সংখ্যা পদ্ধতি ও ডিজিটাল ডিভাইস',
-        'ওয়েব ডিজাইন পরিচিতি এবং এইচটিএমএল',
-        'প্রোগ্রামিং ভাষা',
-        'ডেটাবেজ ম্যানেজমেন্ট সিস্টেম',
-      ]) }],
-    },
+    ...hscCompulsory(p),
     accounting: {
       name: 'হিসাববিজ্ঞান (Accounting)', compulsory: false, defaultSelected: true,
       papers: [
@@ -758,17 +718,7 @@ function hscHumanities(batch) {
     ],
   });
   return {
-    ict: {
-      name: 'তথ্য ও যোগাযোগ প্রযুক্তি (ICT)', compulsory: true, defaultSelected: true,
-      papers: [{ name: '', chapters: ch(`${p}-ict-x`, [
-        'বিশ্ব ও বাংলাদেশ প্রেক্ষিত',
-        'কমিউনিকেশন সিস্টেমস ও নেটওয়ার্কিং',
-        'সংখ্যা পদ্ধতি ও ডিজিটাল ডিভাইস',
-        'ওয়েব ডিজাইন পরিচিতি এবং এইচটিএমএল',
-        'প্রোগ্রামিং ভাষা',
-        'ডেটাবেজ ম্যানেজমেন্ট সিস্টেম',
-      ]) }],
-    },
+    ...hscCompulsory(p),
     civics: {
       name: 'পৌরনীতি ও সুশাসন (Civics and Good Governance)', compulsory: false, defaultSelected: false,
       papers: [
@@ -960,9 +910,9 @@ function hscHumanities(batch) {
 }
 
 const buildBatch = (batch) => ({
+  // No SSC Arts: the client does not serve those students.
   ssc: {
     science: { subjects: sscScience(batch) },
-    arts: { subjects: sscArts(batch) },
     commerce: { subjects: sscCommerce(batch) },
   },
   hsc: {
@@ -981,6 +931,6 @@ export const SYLLABUS = {
 };
 
 export const GROUP_LABELS = {
-  ssc: { science: 'বিজ্ঞান', arts: 'মানবিক', commerce: 'ব্যবসায় শিক্ষা' },
+  ssc: { science: 'বিজ্ঞান', commerce: 'ব্যবসায় শিক্ষা' },
   hsc: { science: 'বিজ্ঞান', business: 'ব্যবসায় শিক্ষা', humanities: 'মানবিক' },
 };

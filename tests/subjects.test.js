@@ -5,8 +5,8 @@ import {
   needsSubjectPicker, countChapters, allChapterIds,
 } from '../src/lib/subjects.js';
 
-test('ssc offers three groups, hsc offers three groups', () => {
-  assert.deepEqual(getGroups('ssc'), ['science', 'arts', 'commerce']);
+test('ssc offers two groups (no arts -- not served), hsc offers three', () => {
+  assert.deepEqual(getGroups('ssc'), ['science', 'commerce']);
   assert.deepEqual(getGroups('hsc'), ['science', 'business', 'humanities']);
 });
 

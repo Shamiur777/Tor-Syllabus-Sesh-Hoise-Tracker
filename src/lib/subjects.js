@@ -1,7 +1,8 @@
 import { SYLLABUS } from '../data/syllabus.js';
 
+// No SSC Arts -- the client does not serve those students.
 const GROUP_ORDER = {
-  ssc: ['science', 'arts', 'commerce'],
+  ssc: ['science', 'commerce'],
   hsc: ['science', 'business', 'humanities'],
 };
 

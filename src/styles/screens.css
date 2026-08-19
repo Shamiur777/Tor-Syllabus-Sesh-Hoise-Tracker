@@ -219,6 +219,29 @@
   box-shadow: var(--shadow-lg);
   display: block;
 }
+/* Enrolment call-to-action banner. Deliberately accent/accent-ink (the same
+   pairing as .btn--primary and the canvas caption bar) rather than a
+   surface/ink combination, which on the HSC theme reads as near-black --
+   this needs to read as a bright, obviously-clickable banner regardless of
+   theme. Shown to every student, enrolled or not. */
+.result__enrol {
+  display: block;
+  min-height: var(--tap);
+  margin-top: var(--sp-5);
+  padding: 14px 22px;
+  border-radius: var(--r-md);
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1rem;
+  line-height: 1.4;
+  text-decoration: none;
+  box-shadow: var(--glow-accent);
+  transition: transform .2s var(--ease), box-shadow .25s var(--ease);
+}
+.result__enrol:hover { transform: translateY(-2px); }
+
 .result__actions { display: grid; gap: 12px; margin-top: var(--sp-5); }
 
 @media (min-width: 560px) {

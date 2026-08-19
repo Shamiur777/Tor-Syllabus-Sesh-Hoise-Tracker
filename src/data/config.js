@@ -30,6 +30,22 @@ export const CONFIG = {
     'hsc-27-science': 'https://edgecoursebd.com/courses/346',
   },
 
+  // Display name per course, same keys/fallback as enrolUrls (resolved by
+  // resolveEnrolLabel in src/lib/enrol.js) -- the client's own course titles,
+  // verbatim, for the result-screen enrolment banner.
+  enrolLabels: {
+    'ssc-27-commerce': 'SSC 27 Business Studies Complete Academic Program',
+    'ssc-28-commerce': 'SSC 28 Business Studies Complete Academic Program',
+    'ssc-27': 'SSC 27 LastShot Revision Batch',
+    'ssc-28': 'SSC 28 Complete Academic Program',
+    'hsc-28-science': 'HSC 28 Academic to Admission Course (Science)',
+    'hsc-28-humanities': 'HSC 28 Arts Academic to Admission Course',
+    'hsc-28-business': 'HSC 28 Business Studies Academic to Admission Course',
+    'hsc-27-humanities': 'HSC 27 Arts Academic to Admission Course',
+    'hsc-27-business': 'HSC 27 Business Studies Academic to Admission Course',
+    'hsc-27-science': 'HSC 27 Academic to Admission Course',
+  },
+
   copy: {
     // These two strings are fixed by the client. Do not reword.
     enrolledYes: 'সাব্বাশ, রাইট ট্র্যাকেই আছো!',
