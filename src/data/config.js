@@ -83,6 +83,10 @@ export const CONFIG = {
       logoBg: '#ffffff',
       accent: '#0a6cf0',
       accentInk: '#ffffff',
+      // Same value as --accent-2 in tokens.css, so the exported result image's
+      // decorative background (canvas.js) uses the identical two-tone palette
+      // already shipped on the web page, not a third, unrelated scheme.
+      accent2: '#f5a81c',
       secondary: '#f5a81c',
       canvasBg: '#f7fafd',
       canvasInk: '#0d1b2a',
@@ -94,6 +98,9 @@ export const CONFIG = {
       logoBg: '#000000',
       accent: '#22a94c',
       accentInk: '#04140a',
+      // Matches --accent-2 in tokens.css (mint green) -- deliberately NOT the
+      // same as `secondary` below (plain white), which is a different token.
+      accent2: '#7bed9f',
       secondary: '#ffffff',
       canvasBg: '#07090a',
       canvasInk: '#f2f5f3',

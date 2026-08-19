@@ -35,6 +35,108 @@ function fitText(ctx, text, maxWidth, startPx, font) {
   return size;
 }
 
+function hexToRgba(hex, alpha) {
+  const n = parseInt(hex.slice(1), 16);
+  return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${alpha})`;
+}
+
+// Same line-art study icons as bgVectors() in ui.js (open book, check-circle,
+// sparkle) -- Path2D accepts an SVG path string directly, so the exact `d`
+// data is reused rather than re-derived. Kept to the upper third of the
+// canvas, clear of the centred name/rating/caption text column and the
+// top-left logo chip, since the tier photo below has a transparent
+// background (rembg cutout) and would otherwise let these show through
+// mid-figure in an inconsistent way per photo.
+const BOOK_PATH = new Path2D(
+  'M0,-14 C-14,-20 -28,-18 -28,-18 L-28,14 C-28,14 -14,12 0,18 '
+  + 'C14,12 28,14 28,14 L28,-18 C28,-18 14,-20 0,-14 Z M0,-14 L0,18',
+);
+const CHECK_PATH = new Path2D('M-7,1 L-2,7 L8,-8');
+const SPARKLE_PATH = new Path2D(
+  'M0,-18 L4,-4 L18,0 L4,4 L0,18 L-4,4 L-18,0 L-4,-4 Z',
+);
+
+// Decorative wash behind the photo/text: a soft two-tone radial gradient (the
+// canvas equivalent of --grad-hero), a dot-grid that fades out by the time
+// the photo begins, a couple of blurred accent orbs, and three faint icons --
+// all at the same low opacities validated on the web page's own background
+// this session, so the exported image reads as the same product rather than
+// a plainer, flatter cousin of it.
+function drawDecorativeBackground(ctx, width, height, brand) {
+  const fadeY = Math.min(height, 820);
+
+  // Radius sized so alpha is already ~0 by y=~700 -- well before fadeY --
+  // and painted over the FULL canvas height rather than a hard-edged rect
+  // cut off at fadeY. An earlier version clipped the fillRect at fadeY with
+  // a radius wide enough to still carry ~5% tint there, which showed up as
+  // a visible seam where the wash stopped and the flat canvasBg began.
+  // Filling the whole canvas with a gradient that fades to true 0 well
+  // before that point removes the seam without needing a cutoff at all.
+  const wash1 = ctx.createRadialGradient(width * 0.12, 0, 0, width * 0.12, 0, 780);
+  wash1.addColorStop(0, hexToRgba(brand.accent, 0.16));
+  wash1.addColorStop(0.7, hexToRgba(brand.accent, 0.04));
+  wash1.addColorStop(1, hexToRgba(brand.accent, 0));
+  ctx.fillStyle = wash1;
+  ctx.fillRect(0, 0, width, height);
+
+  const wash2 = ctx.createRadialGradient(width * 0.96, height * 0.05, 0, width * 0.96, height * 0.05, 820);
+  wash2.addColorStop(0, hexToRgba(brand.accent2 || brand.accent, 0.14));
+  wash2.addColorStop(0.7, hexToRgba(brand.accent2 || brand.accent, 0.035));
+  wash2.addColorStop(1, hexToRgba(brand.accent2 || brand.accent, 0));
+  ctx.fillStyle = wash2;
+  ctx.fillRect(0, 0, width, height);
+
+  ctx.fillStyle = hexToRgba(brand.canvasInk, 0.06);
+  for (let y = 20; y < fadeY; y += 34) {
+    const rowAlpha = 1 - y / fadeY;
+    if (rowAlpha <= 0) continue;
+    ctx.globalAlpha = rowAlpha;
+    for (let x = 20; x < width; x += 34) {
+      ctx.beginPath();
+      ctx.arc(x, y, 1.6, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+  ctx.globalAlpha = 1;
+
+  const orbs = [
+    { x: width * 0.85, y: height * 0.16, r: 190, color: brand.accent, alpha: 0.16 },
+    { x: width * 0.1, y: height * 0.42, r: 150, color: brand.accent2 || brand.accent, alpha: 0.12 },
+  ];
+  ctx.save();
+  ctx.filter = 'blur(70px)'; // no-op on the rare engine that ignores it -- solid orb instead, not a crash
+  for (const orb of orbs) {
+    ctx.fillStyle = hexToRgba(orb.color, orb.alpha);
+    ctx.beginPath();
+    ctx.arc(orb.x, orb.y, orb.r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+
+  const glyph = (path, x, y, scale, color, alpha) => {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(scale, scale);
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
+    ctx.globalAlpha = alpha;
+    ctx.lineWidth = 1.8 / scale;
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+    ctx.stroke(path);
+    ctx.restore();
+  };
+  glyph(BOOK_PATH, width * 0.86, 250, 2.2, brand.canvasInk, 0.16);
+  glyph(CHECK_PATH, width * 0.09, 470, 3.2, brand.canvasInk, 0.2);
+  ctx.save();
+  ctx.translate(width * 0.9, 560);
+  ctx.scale(1.8, 1.8);
+  ctx.fillStyle = brand.accent2 || brand.accent;
+  ctx.globalAlpha = 0.22;
+  ctx.fill(SPARKLE_PATH);
+  ctx.restore();
+}
+
 export async function renderResultImage({ name, institute, percent, tier, level }) {
   await ensureFonts();
 
@@ -49,6 +151,7 @@ export async function renderResultImage({ name, institute, percent, tier, level 
   // dark for HSC, so a downloaded result looks like the tool that made it.
   ctx.fillStyle = brand.canvasBg;
   ctx.fillRect(0, 0, width, height);
+  drawDecorativeBackground(ctx, width, height, brand);
 
   // A perfect score gets the client's joke image instead of the tier artwork.
   const artSrc = percent >= 100 && CONFIG.perfectImage
