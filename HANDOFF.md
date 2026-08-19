@@ -85,11 +85,11 @@ These all look like mistakes and are not. Do not "fix" them without reading why.
 | Group | Subjects | Chapters | Status |
 |---|---|---|---|
 | HSC Science | 7 | 115 | **Real** — client file |
-| SSC Commerce | 8 | 125 | **Real** — client PDF; বিজ্ঞান flagged (see below) |
+| SSC Science | 9 | 193 | **Real** — client textbook contents |
+| SSC Commerce | 8 | 169 | **Real** — client PDF + textbook contents; বিজ্ঞান flagged |
+| SSC Arts | 8 | 144 | compulsory real; group subjects still researched |
 | HSC Humanities | 11 | 113 | **Researched** — 8 high-confidence, Sociology flagged, Social Work placeholder |
 | HSC Business Studies | 5 | 30 | **Partly researched** — Accounting + Production/Marketing done; Management and Finance placeholder |
-| SSC Science | 4 | 28 | **Researched** — Physics/Chemistry/Higher Math high, Biology flagged |
-| SSC Arts | 4 | 19 | **Partly researched** — History high; Civics + Economics flagged; Geography placeholder |
 
 Subjects whose name ends ` [যাচাই করতে হবে]` were transcribed from medium-confidence
 sources and are visibly flagged in the UI so a teacher can spot them. SSC Commerce
@@ -174,6 +174,58 @@ sixth chapter, add it and flag ICT to match.
 Also in the PDF but not in the app: কৃষিশিক্ষা (code 134, printed 21) and subject
 codes 147 (printed 25) and 156 (printed 29). Confirm with the client that these
 are intentionally out of scope.
+
+### SSC Science folder — transcribed 2026-08-19
+
+`SSC Science Syllabus/` holds 13 photographed guide-book / textbook tables of
+contents. They replaced the researched SSC Science lists entirely, and filled in
+the compulsory subjects for all three SSC groups.
+
+**Two rules apply, and mixing them up corrupts scoring.** There is a header
+comment on `sscCompulsory()` saying the same thing, because this is the single
+easiest mistake to make here:
+
+- **Full book** — where the client's 2027 syllabus PDF says সম্পূর্ণ বই and
+  enumerates nothing, the textbook contents *are* the syllabus. Physics 13,
+  Chemistry 12, Biology 14, Higher Maths 14, Maths 17, ICT 6, BGS 15, and
+  Bangla 2nd paper's 49 পরিচ্ছেদ all come straight from these ToCs.
+- **Explicit subset** — where that PDF *does* enumerate content, its list wins
+  over the textbook, because the exam is the subset. Bangla 1st paper stays at
+  12 গদ্য + 12 পদ্য + 2 সহপাঠ though the book holds 25 + 28; English 1st paper
+  stays at units 1-12 + 16 though the book holds 16 units. The ToCs prove the
+  excluded material exists (অভাগীর স্বর্গ, নিমগাছ, ঝরনার গান; Loneliness,
+  Renewable Energy, Media and Modes of E-communication) — it is simply off the
+  exam. **Do not "complete" these two from the textbook.**
+
+Bangla, English, Maths and ICT are one shared `sscCompulsory()` used by all
+three groups — same national subject codes, so they must not drift apart.
+Chapter ids are shared across groups on purpose; `tests/subjects.test.js`
+already documents that.
+
+**Two of the three open chapter-count questions are now closed:**
+
+| Question | Answer |
+|---|---|
+| গণিত chapter 12 | **দুই চলকবিশিষ্ট সরল সহসমীকরণ** — Maths is now 17 of 17 |
+| Does ICT have a chapter 6? | **Yes — প্রোগ্রামিংয়ের মাধ্যমে সমস্যার সমাধান.** Now 6 |
+| Does বিজ্ঞান have chapters past 9? | **Still open.** Science-group students take BGS, not বিজ্ঞান, so this folder has no ToC for it. Commerce/Arts বিজ্ঞান keeps its flag |
+
+`SCHEMA_VERSION` went 3 → 4: Bangla 2nd paper went from 7 coarse sections to 49
+পরিচ্ছেদ, so ids 1-7 now mean different content and stored progress must reset
+rather than mis-score.
+
+**Deliberately NOT added, needs a decision:** `Islam Shikkha.jpeg` (5 chapters)
+and `Krishi.jpeg` (7 chapters). SSC has no optional-subject picker —
+`needsSubjectPicker('ssc')` is `false` and tested — so anything added here counts
+against *every* student in the group. Religion is a per-student choice and only
+the Islam book was supplied, so counting it would misprice every non-Muslim
+student; কৃষিশিক্ষা is an optional 4th subject, so counting it would misprice
+everyone who does not take it. Adding either properly means giving SSC the
+picker HSC already has.
+
+Still missing from the folder: **English 2nd paper.** Not a gap in practice —
+English 2nd (code 108) is a national subject and its 12 test items came from the
+client's Commerce PDF, which applies to every group.
 
 **Rules when adding content:**
 - Never invent a chapter. A fabricated chapter silently corrupts every student's
