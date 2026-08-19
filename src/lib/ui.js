@@ -320,6 +320,11 @@ function enrolBlock(state, h) {
   );
 }
 
+// Sentinel for state.openSubject meaning "the student explicitly collapsed
+// the open accordion" -- distinct from `null` ("no explicit choice yet"),
+// since both must be told apart to make "click to close" actually stick.
+const CLOSED = '__closed__';
+
 registerScreen('syllabus', (state, h) => {
   const all = getSubjects(state.level, state.batch, state.group);
   const chosen = new Set(state.selectedSubjects);
@@ -332,13 +337,20 @@ registerScreen('syllabus', (state, h) => {
   // Which accordion is open lives in state, not local DOM -- the whole screen
   // re-renders on every chapter tick (to keep the ring/percentage/bars live),
   // so a value that only lived in the DOM was lost the instant a student
-  // ticked a chapter in any subject but the first. Falls back to the first
-  // subject both on first arrival (openSubject still null) and if a
-  // previously-open subject is no longer in the current selection (e.g. the
-  // student went back and deselected it).
-  const openId = subjects.some((s) => s.id === state.openSubject)
-    ? state.openSubject
-    : subjects[0]?.id;
+  // ticked a chapter in any subject but the first. `null` means "no explicit
+  // choice yet" and falls back to the first subject (on first arrival, or if
+  // a previously-open subject is no longer in the current selection -- e.g.
+  // the student went back and deselected it). CLOSED is a distinct sentinel
+  // meaning "the student explicitly collapsed the open one" -- it must NOT
+  // fall back to the first subject the way null does, or clicking to close
+  // the only open accordion would have no visible effect.
+  const openId = state.openSubject === null
+    ? subjects[0]?.id
+    : state.openSubject === CLOSED
+      ? CLOSED
+      : subjects.some((s) => s.id === state.openSubject)
+        ? state.openSubject
+        : subjects[0]?.id;
 
   const accordions = subjects.map((s) => {
     const row = breakdown.get(s.id);
@@ -359,7 +371,7 @@ registerScreen('syllabus', (state, h) => {
 
     const head = el('button', {
       class: 'accordion__head', type: 'button', 'aria-expanded': isOpen ? 'true' : 'false',
-      onclick: () => h.onOpenSubject(s.id),
+      onclick: () => h.onOpenSubject(isOpen ? CLOSED : s.id),
     },
       el('span', { style: 'flex:1' }, s.name),
       el('span', { class: 'accordion__count', text: `${row.completed}/${row.total}` }),

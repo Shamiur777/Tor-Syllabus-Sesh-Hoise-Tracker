@@ -103,6 +103,15 @@ body[data-brand='hsc'] {
 
 body {
   margin: 0;
+  /* A short screen (e.g. the batch picker: two buttons and a back link) is
+   * shorter than the viewport, so without a minimum height this box -- the
+   * one carrying --bg and the hero gradient -- ends where its content ends,
+   * and whatever sits below it in the page shows through as a plain gap.
+   * On the deployed page this rule is retargeted at the wrapper div, not the
+   * real <body>, by scope_css() in publish-html-page.py -- min-height is
+   * exactly the fix that guide's own corollary recommends for that case. */
+  min-height: 100vh;
+  min-height: 100dvh;
   background: var(--bg);
   background-image: var(--grad-hero);
   background-attachment: fixed;

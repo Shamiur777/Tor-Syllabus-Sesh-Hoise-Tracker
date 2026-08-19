@@ -116,6 +116,15 @@ body[data-brand='hsc'] {
 
 body {
   margin: 0;
+  /* A short screen (e.g. the batch picker: two buttons and a back link) is
+   * shorter than the viewport, so without a minimum height this box -- the
+   * one carrying --bg and the hero gradient -- ends where its content ends,
+   * and whatever sits below it in the page shows through as a plain gap.
+   * On the deployed page this rule is retargeted at the wrapper div, not the
+   * real <body>, by scope_css() in publish-html-page.py -- min-height is
+   * exactly the fix that guide's own corollary recommends for that case. */
+  min-height: 100vh;
+  min-height: 100dvh;
   background: var(--bg);
   background-image: var(--grad-hero);
   background-attachment: fixed;
@@ -638,6 +647,29 @@ body[data-brand='hsc'] .pill { color: var(--accent-2); }
   box-shadow: var(--shadow-lg);
   display: block;
 }
+/* Enrolment call-to-action banner. Deliberately accent/accent-ink (the same
+   pairing as .btn--primary and the canvas caption bar) rather than a
+   surface/ink combination, which on the HSC theme reads as near-black --
+   this needs to read as a bright, obviously-clickable banner regardless of
+   theme. Shown to every student, enrolled or not. */
+.result__enrol {
+  display: block;
+  min-height: var(--tap);
+  margin-top: var(--sp-5);
+  padding: 14px 22px;
+  border-radius: var(--r-md);
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1rem;
+  line-height: 1.4;
+  text-decoration: none;
+  box-shadow: var(--glow-accent);
+  transition: transform .2s var(--ease), box-shadow .25s var(--ease);
+}
+.result__enrol:hover { transform: translateY(-2px); }
+
 .result__actions { display: grid; gap: 12px; margin-top: var(--sp-5); }
 
 @media (min-width: 560px) {
@@ -700,6 +732,22 @@ const CONFIG = {
     // "HSC27 Academic to Admission Course (Revive)" names no group, but arts and
     // business are both explicit above, so this is the science one by elimination.
     'hsc-27-science': 'https://edgecoursebd.com/courses/346',
+  },
+
+  // Display name per course, same keys/fallback as enrolUrls (resolved by
+  // resolveEnrolLabel in src/lib/enrol.js) -- the client's own course titles,
+  // verbatim, for the result-screen enrolment banner.
+  enrolLabels: {
+    'ssc-27-commerce': 'SSC 27 Business Studies Complete Academic Program',
+    'ssc-28-commerce': 'SSC 28 Business Studies Complete Academic Program',
+    'ssc-27': 'SSC 27 LastShot Revision Batch',
+    'ssc-28': 'SSC 28 Complete Academic Program',
+    'hsc-28-science': 'HSC 28 Academic to Admission Course (Science)',
+    'hsc-28-humanities': 'HSC 28 Arts Academic to Admission Course',
+    'hsc-28-business': 'HSC 28 Business Studies Academic to Admission Course',
+    'hsc-27-humanities': 'HSC 27 Arts Academic to Admission Course',
+    'hsc-27-business': 'HSC 27 Business Studies Academic to Admission Course',
+    'hsc-27-science': 'HSC 27 Academic to Admission Course',
   },
 
   copy: {
@@ -1161,52 +1209,6 @@ function sscScience(batch) {
   };
 }
 
-function sscArts(batch) {
-  const p = `ssc${batch}`;
-  const todo = (id, label) => ({
-    name: label, compulsory: true, defaultSelected: true,
-    papers: [{ name: '', chapters: ch(`${p}-${id}-x`, TODO) }],
-  });
-  return {
-    ...sscCompulsory(p),
-    ...sscOptional(p),
-    geography: todo('geo', 'ভূগোল ও পরিবেশ (Geography and Environment)'),
-    civics: {
-      name: 'পৌরনীতি ও নাগরিকতা (Civics and Citizenship) [যাচাই করতে হবে]', compulsory: true, defaultSelected: true,
-      papers: [{ name: '', chapters: ch(`${p}-civics-x`, [
-        'পৌরনীতি ও নাগরিকতা',
-        'আইন, স্বাধীনতা ও সাম্য',
-        'রাষ্ট্র ও সরকার',
-        'বাংলাদেশের সরকার ব্যবস্থা',
-        'স্থানীয় সরকার',
-        'মানবাধিকার',
-      ]) }],
-    },
-    history: {
-      name: 'বাংলাদেশের ইতিহাস ও বিশ্বসভ্যতা (History)', compulsory: true, defaultSelected: true,
-      papers: [{ name: '', chapters: ch(`${p}-history-x`, [
-        'বিশ্বসভ্যতা',
-        'প্রাচীন বাংলার রাজনৈতিক ইতিহাস',
-        'মধ্যযুগের বাংলার রাজনৈতিক ইতিহাস',
-        'বাংলায় ইংরেজ শাসনের সূচনাপর্ব',
-        'ইংরেজ শাসনামলে বাংলায় প্রতিরোধ ও সংগ্রাম',
-        'সত্তরের নির্বাচন ও মুক্তিযুদ্ধ',
-      ]) }],
-    },
-    economics: {
-      name: 'অর্থনীতি (Economics) [যাচাই করতে হবে]', compulsory: true, defaultSelected: true,
-      papers: [{ name: '', chapters: ch(`${p}-eco-x`, [
-        'অর্থনীতির গুরুত্ব',
-        'উপযোগ, চাহিদা, যোগান',
-        'উৎপাদন ও সংগঠন',
-        'জাতীয় আয় ও এর পরিমাপ',
-        'অর্থ ও ব্যাংক ব্যবস্থা',
-        'বাংলাদেশ সরকারের রাজস্বনীতি',
-      ]) }],
-    },
-  };
-}
-
 // Real content, read from the client's 2027 SSC Commerce syllabus PDF.
 function sscCommerce(batch) {
   const p = `ssc${batch}`;
@@ -1287,8 +1289,17 @@ function sscCommerce(batch) {
 /* ---------------------------------------------------------------- HSC ---- */
 
 // Real content, from the client's HSC syllabus file.
-function hscScience(batch) {
-  const p = `hsc${batch}`;
+/* --------------------------------------------------- HSC compulsory ----
+ * Bangla, English and ICT are the same national subjects for every HSC
+ * group -- client confirmed 2026-08-20 that Science, Business and
+ * Humanities all sit the same syllabus for these three, so they are one
+ * shared definition rather than three copies that could drift (the same
+ * reasoning as sscCompulsory() above). Content is the client-supplied
+ * `syllabus-source/HSC Syllabus.txt`, previously only wired into
+ * hscScience(); Business and Humanities had no Bangla/English at all before
+ * this and only a duplicated copy of this exact ICT block.
+ */
+function hscCompulsory(p) {
   return {
     bangla: {
       name: 'বাংলা ১ম পত্র (Bangla 1st Paper)', compulsory: true, defaultSelected: true,
@@ -1351,6 +1362,13 @@ function hscScience(batch) {
         'ডেটাবেজ ম্যানেজমেন্ট সিস্টেম',
       ]) }],
     },
+  };
+}
+
+function hscScience(batch) {
+  const p = `hsc${batch}`;
+  return {
+    ...hscCompulsory(p),
     physics: {
       name: 'পদার্থবিজ্ঞান (Physics)', compulsory: true, defaultSelected: true,
       papers: [
@@ -1473,17 +1491,7 @@ function hscBusiness(batch) {
     ],
   });
   return {
-    ict: {
-      name: 'তথ্য ও যোগাযোগ প্রযুক্তি (ICT)', compulsory: true, defaultSelected: true,
-      papers: [{ name: '', chapters: ch(`${p}-ict-x`, [
-        'বিশ্ব ও বাংলাদেশ প্রেক্ষিত',
-        'কমিউনিকেশন সিস্টেমস ও নেটওয়ার্কিং',
-        'সংখ্যা পদ্ধতি ও ডিজিটাল ডিভাইস',
-        'ওয়েব ডিজাইন পরিচিতি এবং এইচটিএমএল',
-        'প্রোগ্রামিং ভাষা',
-        'ডেটাবেজ ম্যানেজমেন্ট সিস্টেম',
-      ]) }],
-    },
+    ...hscCompulsory(p),
     accounting: {
       name: 'হিসাববিজ্ঞান (Accounting)', compulsory: false, defaultSelected: true,
       papers: [
@@ -1537,17 +1545,7 @@ function hscHumanities(batch) {
     ],
   });
   return {
-    ict: {
-      name: 'তথ্য ও যোগাযোগ প্রযুক্তি (ICT)', compulsory: true, defaultSelected: true,
-      papers: [{ name: '', chapters: ch(`${p}-ict-x`, [
-        'বিশ্ব ও বাংলাদেশ প্রেক্ষিত',
-        'কমিউনিকেশন সিস্টেমস ও নেটওয়ার্কিং',
-        'সংখ্যা পদ্ধতি ও ডিজিটাল ডিভাইস',
-        'ওয়েব ডিজাইন পরিচিতি এবং এইচটিএমএল',
-        'প্রোগ্রামিং ভাষা',
-        'ডেটাবেজ ম্যানেজমেন্ট সিস্টেম',
-      ]) }],
-    },
+    ...hscCompulsory(p),
     civics: {
       name: 'পৌরনীতি ও সুশাসন (Civics and Good Governance)', compulsory: false, defaultSelected: false,
       papers: [
@@ -1739,9 +1737,9 @@ function hscHumanities(batch) {
 }
 
 const buildBatch = (batch) => ({
+  // No SSC Arts: the client does not serve those students.
   ssc: {
     science: { subjects: sscScience(batch) },
-    arts: { subjects: sscArts(batch) },
     commerce: { subjects: sscCommerce(batch) },
   },
   hsc: {
@@ -1758,13 +1756,14 @@ const SYLLABUS = {
   hsc: { 27: b27.hsc, 28: b28.hsc },
 };
 const GROUP_LABELS = {
-  ssc: { science: 'বিজ্ঞান', arts: 'মানবিক', commerce: 'ব্যবসায় শিক্ষা' },
+  ssc: { science: 'বিজ্ঞান', commerce: 'ব্যবসায় শিক্ষা' },
   hsc: { science: 'বিজ্ঞান', business: 'ব্যবসায় শিক্ষা', humanities: 'মানবিক' },
 };
 
 
+// No SSC Arts -- the client does not serve those students.
 const GROUP_ORDER = {
-  ssc: ['science', 'arts', 'commerce'],
+  ssc: ['science', 'commerce'],
   hsc: ['science', 'business', 'humanities'],
 };
 function getGroups(level) {
@@ -1847,17 +1846,23 @@ function validateText(value, label) {
 }
 
 
-// Resolves the enrolment link for a student, most specific key first:
-//   `<level>-<batch>-<group>` -> `<level>-<batch>` -> `<level>`
-// Returns '' when nothing matches, which the lead screen treats as "omit the
-// button" rather than rendering a dead link.
-function resolveEnrolUrl(level, batch, group) {
+// Both the enrolment URL and its display label are resolved most-specific
+// key first: `<level>-<batch>-<group>` -> `<level>-<batch>` -> `<level>`.
+// Returns '' when nothing matches, which callers treat as "omit this UI"
+// rather than rendering a dead link or a blank label.
+function resolveMostSpecific(map, level, batch, group) {
   const keys = [`${level}-${batch}-${group}`, `${level}-${batch}`, String(level)];
   for (const key of keys) {
-    const url = CONFIG.enrolUrls[key];
-    if (url) return url;
+    const value = map[key];
+    if (value) return value;
   }
   return '';
+}
+function resolveEnrolUrl(level, batch, group) {
+  return resolveMostSpecific(CONFIG.enrolUrls, level, batch, group);
+}
+function resolveEnrolLabel(level, batch, group) {
+  return resolveMostSpecific(CONFIG.enrolLabels, level, batch, group);
 }
 
 
@@ -2529,6 +2534,11 @@ function enrolBlock(state, h) {
   );
 }
 
+// Sentinel for state.openSubject meaning "the student explicitly collapsed
+// the open accordion" -- distinct from `null` ("no explicit choice yet"),
+// since both must be told apart to make "click to close" actually stick.
+const CLOSED = '__closed__';
+
 registerScreen('syllabus', (state, h) => {
   const all = getSubjects(state.level, state.batch, state.group);
   const chosen = new Set(state.selectedSubjects);
@@ -2541,13 +2551,20 @@ registerScreen('syllabus', (state, h) => {
   // Which accordion is open lives in state, not local DOM -- the whole screen
   // re-renders on every chapter tick (to keep the ring/percentage/bars live),
   // so a value that only lived in the DOM was lost the instant a student
-  // ticked a chapter in any subject but the first. Falls back to the first
-  // subject both on first arrival (openSubject still null) and if a
-  // previously-open subject is no longer in the current selection (e.g. the
-  // student went back and deselected it).
-  const openId = subjects.some((s) => s.id === state.openSubject)
-    ? state.openSubject
-    : subjects[0]?.id;
+  // ticked a chapter in any subject but the first. `null` means "no explicit
+  // choice yet" and falls back to the first subject (on first arrival, or if
+  // a previously-open subject is no longer in the current selection -- e.g.
+  // the student went back and deselected it). CLOSED is a distinct sentinel
+  // meaning "the student explicitly collapsed the open one" -- it must NOT
+  // fall back to the first subject the way null does, or clicking to close
+  // the only open accordion would have no visible effect.
+  const openId = state.openSubject === null
+    ? subjects[0]?.id
+    : state.openSubject === CLOSED
+      ? CLOSED
+      : subjects.some((s) => s.id === state.openSubject)
+        ? state.openSubject
+        : subjects[0]?.id;
 
   const accordions = subjects.map((s) => {
     const row = breakdown.get(s.id);
@@ -2568,7 +2585,7 @@ registerScreen('syllabus', (state, h) => {
 
     const head = el('button', {
       class: 'accordion__head', type: 'button', 'aria-expanded': isOpen ? 'true' : 'false',
-      onclick: () => h.onOpenSubject(s.id),
+      onclick: () => h.onOpenSubject(isOpen ? CLOSED : s.id),
     },
       el('span', { style: 'flex:1' }, s.name),
       el('span', { class: 'accordion__count', text: `${row.completed}/${row.total}` }),
