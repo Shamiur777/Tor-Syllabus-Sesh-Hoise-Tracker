@@ -708,18 +708,22 @@ const CONFIG = {
   },
 
   // Inclusive percentage bands, evaluated in order. Retune here, not in code.
+  // `label` is the catchphrase confirmed with the client per tier (see the
+  // result-artwork table in HANDOFF.md) -- drawn as a caption bar over the
+  // tier artwork in canvas.js so the exported/shared image carries it, not
+  // just this table.
   tiers: {
     27: [
-      { id: 'batch27-tier1', min: 0, max: 29 },
-      { id: 'batch27-tier2', min: 30, max: 49 },
-      { id: 'batch27-tier3', min: 50, max: 69 },
-      { id: 'batch27-tier4', min: 70, max: 100 },
+      { id: 'batch27-tier1', min: 0, max: 29, label: 'তুই তো শেষ মামা' },
+      { id: 'batch27-tier2', min: 30, max: 49, label: 'এভাবে চলবে না!' },
+      { id: 'batch27-tier3', min: 50, max: 69, label: 'আরও ভাল করতে হবে!' },
+      { id: 'batch27-tier4', min: 70, max: 100, label: 'পারফেক্ট! ট্র্যাক ধরে রাখো...' },
     ],
     28: [
-      { id: 'batch28-tier1', min: 0, max: 10 },
-      { id: 'batch28-tier2', min: 11, max: 30 },
-      { id: 'batch28-tier3', min: 31, max: 60 },
-      { id: 'batch28-tier4', min: 61, max: 100 },
+      { id: 'batch28-tier1', min: 0, max: 10, label: 'তুই তো শেষ মামা' },
+      { id: 'batch28-tier2', min: 11, max: 30, label: 'এভাবে চলবে না!' },
+      { id: 'batch28-tier3', min: 31, max: 60, label: 'সাবাস! আরও ভালো করতে হবে!' },
+      { id: 'batch28-tier4', min: 61, max: 100, label: 'তুই তো GOAT মামা!' },
     ],
   },
 
@@ -768,6 +772,7 @@ const CONFIG = {
   // Shown instead of the tier image when a student reports exactly 100%.
   // The client's joke response to a suspiciously perfect score.
   perfectImage: 'images/results/perfect.png',
+  perfectLabel: 'মিথ্যা কথা বলিস কেন!',
 };
 
 // Syllabus content.
@@ -2082,7 +2087,8 @@ function fitText(ctx, text, maxWidth, startPx, font) {
     ctx.font = font(size);
   }
   return size;
-}async function renderResultImage({ name, institute, percent, tier, level }) {
+}
+async function renderResultImage({ name, institute, percent, tier, level }) {
   await ensureFonts();
 
   const { width, height } = CONFIG.canvas;
@@ -2112,6 +2118,24 @@ function fitText(ctx, text, maxWidth, startPx, font) {
     const scale = width / bg.width;
     const drawH = bg.height * scale;
     ctx.drawImage(bg, 0, height - drawH, width, drawH);
+  }
+
+  // Every tier (and the perfect-score joke) has a catchphrase confirmed with
+  // the client -- CONFIG.tiers[].label / CONFIG.perfectLabel -- drawn as a
+  // caption bar over the bottom of the artwork so it reads regardless of what
+  // is underneath, rather than depending on each photo's own contrast. Uses
+  // the same accent/accentInk pairing as the on-page primary button, so the
+  // bar is guaranteed legible without a new colour to maintain.
+  const caption = percent >= 100 && CONFIG.perfectLabel ? CONFIG.perfectLabel : tier.label;
+  if (caption) {
+    const barH = 150;
+    ctx.fillStyle = brand.accent;
+    ctx.fillRect(0, height - barH, width, barH);
+    ctx.fillStyle = brand.accentInk;
+    ctx.textAlign = 'center';
+    const capSize = fitText(ctx, caption, width - 100, 60, (s) => `800 ${s}px "Baloo Da 2", sans-serif`);
+    ctx.font = `800 ${capSize}px "Baloo Da 2", sans-serif`;
+    ctx.fillText(caption, width / 2, height - barH / 2 + capSize * 0.34);
   }
 
   // The logo sits on a rounded chip in its own background colour. On both themes
@@ -2158,7 +2182,8 @@ function fitText(ctx, text, maxWidth, startPx, font) {
 
 function toBlob(canvas) {
   return new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
-}async function downloadCanvas(canvas, filename) {
+}
+async function downloadCanvas(canvas, filename) {
   const blob = await toBlob(canvas);
   if (!blob) return false;
   const url = URL.createObjectURL(blob);
@@ -2172,7 +2197,8 @@ function toBlob(canvas) {
   // iOS Safari ignores the download attribute entirely, so the caller always
   // shows the long-press instruction as well rather than trusting this.
   return true;
-}async function shareCanvas(canvas, filename) {
+}
+async function shareCanvas(canvas, filename) {
   const blob = await toBlob(canvas);
   if (!blob) return false;
   const file = new File([blob], filename, { type: 'image/png' });

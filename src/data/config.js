@@ -36,18 +36,22 @@ export const CONFIG = {
   },
 
   // Inclusive percentage bands, evaluated in order. Retune here, not in code.
+  // `label` is the catchphrase confirmed with the client per tier (see the
+  // result-artwork table in HANDOFF.md) -- drawn as a caption bar over the
+  // tier artwork in canvas.js so the exported/shared image carries it, not
+  // just this table.
   tiers: {
     27: [
-      { id: 'batch27-tier1', min: 0, max: 29 },
-      { id: 'batch27-tier2', min: 30, max: 49 },
-      { id: 'batch27-tier3', min: 50, max: 69 },
-      { id: 'batch27-tier4', min: 70, max: 100 },
+      { id: 'batch27-tier1', min: 0, max: 29, label: 'তুই তো শেষ মামা' },
+      { id: 'batch27-tier2', min: 30, max: 49, label: 'এভাবে চলবে না!' },
+      { id: 'batch27-tier3', min: 50, max: 69, label: 'আরও ভাল করতে হবে!' },
+      { id: 'batch27-tier4', min: 70, max: 100, label: 'পারফেক্ট! ট্র্যাক ধরে রাখো...' },
     ],
     28: [
-      { id: 'batch28-tier1', min: 0, max: 10 },
-      { id: 'batch28-tier2', min: 11, max: 30 },
-      { id: 'batch28-tier3', min: 31, max: 60 },
-      { id: 'batch28-tier4', min: 61, max: 100 },
+      { id: 'batch28-tier1', min: 0, max: 10, label: 'তুই তো শেষ মামা' },
+      { id: 'batch28-tier2', min: 11, max: 30, label: 'এভাবে চলবে না!' },
+      { id: 'batch28-tier3', min: 31, max: 60, label: 'সাবাস! আরও ভালো করতে হবে!' },
+      { id: 'batch28-tier4', min: 61, max: 100, label: 'তুই তো GOAT মামা!' },
     ],
   },
 
@@ -96,4 +100,5 @@ export const CONFIG = {
   // Shown instead of the tier image when a student reports exactly 100%.
   // The client's joke response to a suspiciously perfect score.
   perfectImage: 'images/results/perfect.png',
+  perfectLabel: 'মিথ্যা কথা বলিস কেন!',
 };

@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { resolveTier } from '../src/lib/scoring.js';
+import { CONFIG } from '../src/data/config.js';
 
 test("batch 27 bands split at 30, 50 and 70", () => {
   assert.equal(resolveTier(0, '27').index, 0);
@@ -27,6 +28,18 @@ test("batch 28 bands split at 11, 31 and 61", () => {
 test('tier carries a stable id usable as an image key', () => {
   assert.equal(resolveTier(85, '27').id, 'batch27-tier4');
   assert.equal(resolveTier(5, '28').id, 'batch28-tier1');
+});
+
+test('every tier carries a non-empty caption, so the result image is never captionless', () => {
+  for (const batch of ['27', '28']) {
+    for (const band of CONFIG.tiers[batch]) {
+      const tier = resolveTier((band.min + band.max) / 2, batch);
+      assert.equal(typeof tier.label, 'string');
+      assert.ok(tier.label.length > 0, `${tier.id} has no caption`);
+    }
+  }
+  assert.equal(typeof CONFIG.perfectLabel, 'string');
+  assert.ok(CONFIG.perfectLabel.length > 0);
 });
 
 test('out of range percentages clamp rather than throw', () => {

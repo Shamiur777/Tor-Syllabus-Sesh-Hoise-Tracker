@@ -66,6 +66,24 @@ export async function renderResultImage({ name, institute, percent, tier, level 
     ctx.drawImage(bg, 0, height - drawH, width, drawH);
   }
 
+  // Every tier (and the perfect-score joke) has a catchphrase confirmed with
+  // the client -- CONFIG.tiers[].label / CONFIG.perfectLabel -- drawn as a
+  // caption bar over the bottom of the artwork so it reads regardless of what
+  // is underneath, rather than depending on each photo's own contrast. Uses
+  // the same accent/accentInk pairing as the on-page primary button, so the
+  // bar is guaranteed legible without a new colour to maintain.
+  const caption = percent >= 100 && CONFIG.perfectLabel ? CONFIG.perfectLabel : tier.label;
+  if (caption) {
+    const barH = 150;
+    ctx.fillStyle = brand.accent;
+    ctx.fillRect(0, height - barH, width, barH);
+    ctx.fillStyle = brand.accentInk;
+    ctx.textAlign = 'center';
+    const capSize = fitText(ctx, caption, width - 100, 60, (s) => `800 ${s}px "Baloo Da 2", sans-serif`);
+    ctx.font = `800 ${capSize}px "Baloo Da 2", sans-serif`;
+    ctx.fillText(caption, width / 2, height - barH / 2 + capSize * 0.34);
+  }
+
   // The logo sits on a rounded chip in its own background colour. On both themes
   // the chip matches the canvas backdrop and is invisible; it only shows itself
   // if a future logo ships with a different background.
