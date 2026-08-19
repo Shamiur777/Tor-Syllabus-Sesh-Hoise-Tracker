@@ -1878,6 +1878,12 @@ function createState() {
     group: null,
     selectedSubjects: [],
     checked: [],
+    // Which accordion is expanded on the syllabus screen. null means "no
+    // explicit choice yet" -- ui.js falls back to the first subject in that
+    // case. Kept in state (not local DOM) because the whole screen re-renders
+    // on every chapter tick; a value that only lived in the DOM would be lost
+    // the moment a student ticked a chapter in any subject but the first.
+    openSubject: null,
     enrolled: null,
     phone: '',
     email: '',
@@ -2532,9 +2538,21 @@ registerScreen('syllabus', (state, h) => {
   const { completed, total, percent } = computeCompletion(subjects, checked);
   const breakdown = new Map(computeSubjectBreakdown(subjects, checked).map((r) => [r.id, r]));
 
-  const accordions = subjects.map((s, i) => {
+  // Which accordion is open lives in state, not local DOM -- the whole screen
+  // re-renders on every chapter tick (to keep the ring/percentage/bars live),
+  // so a value that only lived in the DOM was lost the instant a student
+  // ticked a chapter in any subject but the first. Falls back to the first
+  // subject both on first arrival (openSubject still null) and if a
+  // previously-open subject is no longer in the current selection (e.g. the
+  // student went back and deselected it).
+  const openId = subjects.some((s) => s.id === state.openSubject)
+    ? state.openSubject
+    : subjects[0]?.id;
+
+  const accordions = subjects.map((s) => {
     const row = breakdown.get(s.id);
-    const body = el('div', { class: 'accordion__body', hidden: i !== 0 });
+    const isOpen = s.id === openId;
+    const body = el('div', { class: 'accordion__body', hidden: !isOpen });
 
     for (const paper of s.papers) {
       if (paper.name) body.append(el('h3', { class: 'paper-label', text: paper.name }));
@@ -2548,20 +2566,13 @@ registerScreen('syllabus', (state, h) => {
       }
     }
 
-    // The screen fully re-renders on every chapter tick (see onToggleChapter in
-    // main.js), so the initial aria-expanded value must match the initial
-    // `hidden` state above (first accordion open, rest closed) rather than
-    // assuming a default — there is no persistent DOM to fall back on.
     const head = el('button', {
-      class: 'accordion__head', type: 'button', 'aria-expanded': i === 0 ? 'true' : 'false',
+      class: 'accordion__head', type: 'button', 'aria-expanded': isOpen ? 'true' : 'false',
+      onclick: () => h.onOpenSubject(s.id),
     },
       el('span', { style: 'flex:1' }, s.name),
       el('span', { class: 'accordion__count', text: `${row.completed}/${row.total}` }),
       el('span', { class: 'accordion__chev', 'aria-hidden': 'true' }));
-    head.addEventListener('click', () => {
-      body.hidden = !body.hidden;
-      head.setAttribute('aria-expanded', body.hidden ? 'false' : 'true');
-    });
 
     const bar = el('div', { class: 'bar', style: 'margin:0 16px 12px' },
       el('div', { class: 'bar__fill', style: `width:${row.percent}%` }));
@@ -2703,7 +2714,7 @@ const utm = captureUtm(typeof location === 'undefined' ? '' : location.search);
       let next = { ...state, [key]: value };
       // Changing level, batch or group invalidates any subject or chapter choices made after it.
       if (key !== 'group') next = { ...next, group: null };
-      next = { ...next, selectedSubjects: [], checked: [] };
+      next = { ...next, selectedSubjects: [], checked: [], openSubject: null };
       if (key === 'group' && !needsSubjectPicker(next.level)) {
         next.selectedSubjects = getDefaultSelectedIds(next.level, next.batch, value);
       }
@@ -2711,6 +2722,7 @@ const utm = captureUtm(typeof location === 'undefined' ? '' : location.search);
     },
     onToggleChapter: (id) => commit(toggleChapter(state, id)),
     onSetSubjects: (ids) => commit(setSubjects(state, ids, getSubjects(state.level, state.batch, state.group))),
+    onOpenSubject: (id) => commit({ ...state, openSubject: id }),
     onEnrol: (value) => commit({ ...state, enrolled: value }),
     onSubmitLead: async ({ phone, email }) => {
       const next = { ...state, phone, email };

@@ -18,6 +18,12 @@ export function createState() {
     group: null,
     selectedSubjects: [],
     checked: [],
+    // Which accordion is expanded on the syllabus screen. null means "no
+    // explicit choice yet" -- ui.js falls back to the first subject in that
+    // case. Kept in state (not local DOM) because the whole screen re-renders
+    // on every chapter tick; a value that only lived in the DOM would be lost
+    // the moment a student ticked a chapter in any subject but the first.
+    openSubject: null,
     enrolled: null,
     phone: '',
     email: '',

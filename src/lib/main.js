@@ -30,7 +30,7 @@ export function boot() {
       let next = { ...state, [key]: value };
       // Changing level, batch or group invalidates any subject or chapter choices made after it.
       if (key !== 'group') next = { ...next, group: null };
-      next = { ...next, selectedSubjects: [], checked: [] };
+      next = { ...next, selectedSubjects: [], checked: [], openSubject: null };
       if (key === 'group' && !needsSubjectPicker(next.level)) {
         next.selectedSubjects = getDefaultSelectedIds(next.level, next.batch, value);
       }
@@ -38,6 +38,7 @@ export function boot() {
     },
     onToggleChapter: (id) => commit(toggleChapter(state, id)),
     onSetSubjects: (ids) => commit(setSubjects(state, ids, getSubjects(state.level, state.batch, state.group))),
+    onOpenSubject: (id) => commit({ ...state, openSubject: id }),
     onEnrol: (value) => commit({ ...state, enrolled: value }),
     onSubmitLead: async ({ phone, email }) => {
       const next = { ...state, phone, email };

@@ -329,9 +329,21 @@ registerScreen('syllabus', (state, h) => {
   const { completed, total, percent } = computeCompletion(subjects, checked);
   const breakdown = new Map(computeSubjectBreakdown(subjects, checked).map((r) => [r.id, r]));
 
-  const accordions = subjects.map((s, i) => {
+  // Which accordion is open lives in state, not local DOM -- the whole screen
+  // re-renders on every chapter tick (to keep the ring/percentage/bars live),
+  // so a value that only lived in the DOM was lost the instant a student
+  // ticked a chapter in any subject but the first. Falls back to the first
+  // subject both on first arrival (openSubject still null) and if a
+  // previously-open subject is no longer in the current selection (e.g. the
+  // student went back and deselected it).
+  const openId = subjects.some((s) => s.id === state.openSubject)
+    ? state.openSubject
+    : subjects[0]?.id;
+
+  const accordions = subjects.map((s) => {
     const row = breakdown.get(s.id);
-    const body = el('div', { class: 'accordion__body', hidden: i !== 0 });
+    const isOpen = s.id === openId;
+    const body = el('div', { class: 'accordion__body', hidden: !isOpen });
 
     for (const paper of s.papers) {
       if (paper.name) body.append(el('h3', { class: 'paper-label', text: paper.name }));
@@ -345,20 +357,13 @@ registerScreen('syllabus', (state, h) => {
       }
     }
 
-    // The screen fully re-renders on every chapter tick (see onToggleChapter in
-    // main.js), so the initial aria-expanded value must match the initial
-    // `hidden` state above (first accordion open, rest closed) rather than
-    // assuming a default — there is no persistent DOM to fall back on.
     const head = el('button', {
-      class: 'accordion__head', type: 'button', 'aria-expanded': i === 0 ? 'true' : 'false',
+      class: 'accordion__head', type: 'button', 'aria-expanded': isOpen ? 'true' : 'false',
+      onclick: () => h.onOpenSubject(s.id),
     },
       el('span', { style: 'flex:1' }, s.name),
       el('span', { class: 'accordion__count', text: `${row.completed}/${row.total}` }),
       el('span', { class: 'accordion__chev', 'aria-hidden': 'true' }));
-    head.addEventListener('click', () => {
-      body.hidden = !body.hidden;
-      head.setAttribute('aria-expanded', body.hidden ? 'false' : 'true');
-    });
 
     const bar = el('div', { class: 'bar', style: 'margin:0 16px 12px' },
       el('div', { class: 'bar__fill', style: `width:${row.percent}%` }));

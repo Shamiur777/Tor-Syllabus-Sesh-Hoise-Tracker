@@ -22,6 +22,7 @@ test('a fresh state starts on the landing screen with nothing chosen', () => {
   assert.equal(s.level, null);
   assert.deepEqual(s.checked, []);
   assert.equal(s.enrolled, null);
+  assert.equal(s.openSubject, null);
   assert.equal(s.version, SCHEMA_VERSION);
 });
 
