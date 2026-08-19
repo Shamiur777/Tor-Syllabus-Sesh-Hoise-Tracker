@@ -44,6 +44,53 @@ After editing any of the above in `src/`, rebuild and deploy the regenerated
 `syllabus-tracker.html` — the file living on the server is a snapshot, not something you patch
 directly.
 
+## Deployed: hulkenstein.com/tor-syllabus-sesh-hoise
+
+Live since 2026-08-19 as WordPress page **10683**, published with
+`C:\Claude Code\Wordpress\publish-html-page.py` (see
+`deploy-html-to-hulkenstein.md` beside it for why each step exists). Elementor
+Canvas template, so no theme header/footer. **A redeploy is required after every
+`node scripts/build.mjs`** — the live page is a snapshot, not a symlink.
+
+That script takes an HTML *fragment* plus separate CSS and JS, so the built
+single file has to be split first. Three sharp edges cost real time; don't
+rediscover them:
+
+1. **`syllabus-tracker.html` is CRLF.** Line-anchored regexes (`^<body>$`) do
+   not match until you normalise `
+` to `
+`.
+2. **`<body>` appears inside a CSS comment** (the do-not-transition note in
+   `tokens.css`). Splitting on the first `<body>` silently yields a "fragment"
+   full of CSS. Anchor to the line, and assert the fragment is exactly
+   `<div id="app"></div>`.
+3. **The script rewrites asset paths in HTML and CSS only — not JS.** All 11
+   image paths live in `CONFIG` inside the bundle, so they must be uploaded and
+   substituted by hand first. A base-URL prefix will not do it: `upload_asset`
+   bakes a content hash into each filename. (`batch28-tier1/2` dedupe onto
+   `batch27-tier1/2` — those tiers genuinely share artwork.)
+
+Also required, and easy to miss:
+
+- **Google Fonts.** Canvas drops our `<head>`, taking the fonts `<link>` with
+  it. Prepend an `@import` for Baloo Da 2 + Hind Siliguri to the CSS blob.
+  Not cosmetic: `canvas.js` awaits `document.fonts.load()` before drawing, and
+  without it the share image exports Bengali as tofu.
+- **The sitewide redirect.** Pass `--exempt-redirect` or every fresh visitor
+  bounces to edgecoursebd.com. It read-modify-writes snippet 10538, so existing
+  entries survive.
+
+CSS scoping works out for this page without changes: `scope_css` leaves
+selectors starting with `body` alone, so `body[data-brand='ssc'|'hsc']` keeps
+working against `document.body.dataset.brand`, while the bare `body {}` rule is
+re-pointed at the wrapper — which is what that guide's §4 corollary recommends
+anyway. Verified live: switching to HSC turns the wrapper background dark.
+
+Watch on real phones: the (scoped) wrapper rule still carries
+`background-attachment: fixed`, the pattern that guide's §4 warns about for
+mobile scroll jank. Unchanged so far because it is part of the verified design;
+swap it for a `position: fixed` pseudo-element if it janks.
+
 ## Known intentional quirks
 
 - **The lead POST uses `Content-Type: text/plain`.** This looks wrong and is deliberate: Apps

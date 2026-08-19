@@ -6,9 +6,11 @@ for how to deploy.
 
 **Repo:** https://github.com/Shamiur777/Tor-Syllabus-Sesh-Hoise-Tracker
 **Branches:** `main` and `feat/syllabus-tracker` are identical and both pushed.
-**State:** working, deployable, 75 tests passing. Lead capture is live and
-verified. What is left before launch is syllabus content and two config URLs —
-see *Outstanding work* below.
+**State:** **live** at https://hulkenstein.com/tor-syllabus-sesh-hoise (WordPress
+page 10683), 79 tests passing. Lead capture and enrolment links both work end to
+end. What is left is syllabus content — see *Outstanding work* below. Redeploy
+instructions are in `INTEGRATION-NOTES.md`; the live page is a snapshot, so it
+needs a redeploy after every build.
 
 ---
 
