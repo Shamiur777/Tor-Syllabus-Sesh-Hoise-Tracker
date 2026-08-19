@@ -6,7 +6,8 @@ for how to deploy.
 
 **Repo:** https://github.com/Shamiur777/Tor-Syllabus-Sesh-Hoise-Tracker
 **Branches:** `main` and `feat/syllabus-tracker` are identical and both pushed.
-**State:** working, deployable, 75 tests passing. Two things block full launch —
+**State:** working, deployable, 75 tests passing. Lead capture is live and
+verified. What is left before launch is syllabus content and two config URLs —
 see *Outstanding work* below.
 
 ---
@@ -184,15 +185,30 @@ are intentionally out of scope.
   older one. Verify which curriculum applies before trusting any web source, and
   have a teacher confirm against what Edge Course actually teaches.
 
-### 2. Google Sheet backend — NOT DEPLOYED, blocks lead capture
+### 2. Google Sheet backend — DEPLOYED AND VERIFIED 2026-08-19
 
-`apps-script/Code.gs` and `SETUP-APPS-SCRIPT.md` are written and committed, but
-the web app has **not been deployed** — that needs clicks in the client's own
-Google account.
+`apps-script/Code.gs` is deployed as a web app and `CONFIG.appsScriptUrl` is set
+in `src/data/config.js`. Lead capture works.
 
-Until `CONFIG.appsScriptUrl` in `src/data/config.js` is filled, submissions are
-skipped with a console warning and the student still reaches their result. Nothing
-else is blocked.
+Verified three ways, not just by the endpoint existing:
+
+1. `GET /exec` returns `{"ok":true,"message":"Endpoint is live..."}` over plain
+   `curl` with no Google session — which also proves *Who has access* is `Anyone`
+   rather than `Anyone with Google account`.
+2. `GET /exec?test=1` returned `{"ok":true,"wrote":"test row"}`, so the
+   spreadsheet scopes really are authorised.
+3. The **production path** was exercised from the served page: a cross-origin
+   `POST` with `Content-Type: text/plain` (the no-preflight trick) returned
+   `{"ok":true}` 200. This is the one that matters — the two GETs above are
+   same-origin-ish conveniences and would pass even if CORS were broken.
+
+Two rows were written to the `Leads` tab during this and should be deleted: the
+`TEST ROW` from step 2, and one reading `CLAUDE E2E TEST` / `DELETE THIS ROW`
+from step 3.
+
+If `Code.gs` ever changes, redeploy via **Manage deployments → pencil → Version:
+New version**. A fresh *New deployment* mints a new URL that the page does not
+know about.
 
 The guide starts at **`script.google.com`** and creates a *standalone* project that
 opens the sheet by ID. **Do not** use the spreadsheet's *Extensions → Apps Script*
