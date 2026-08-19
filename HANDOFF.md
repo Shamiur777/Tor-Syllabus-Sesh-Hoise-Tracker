@@ -81,21 +81,35 @@ These all look like mistakes and are not. Do not "fix" them without reading why.
 
 | Group | Subjects | Chapters | Status |
 |---|---|---|---|
-| HSC Science | 7 | 115 | **Real** — from client file |
-| SSC Commerce | 4 | 40 | **Real** — from client PDF |
-| SSC Science | 4 | 4 | Placeholder |
-| SSC Arts | 4 | 4 | Placeholder |
-| HSC Business Studies | 5 | 14 | Placeholder (ICT real) |
-| HSC Humanities | 11 | 26 | Placeholder (ICT real) |
+| HSC Science | 7 | 115 | **Real** — client file |
+| SSC Commerce | 4 | 40 | **Real** — client PDF |
+| HSC Humanities | 11 | 113 | **Researched** — 8 high-confidence, Sociology flagged, Social Work placeholder |
+| HSC Business Studies | 5 | 30 | **Partly researched** — Accounting + Production/Marketing done; Management and Finance placeholder |
+| SSC Science | 4 | 28 | **Researched** — Physics/Chemistry/Higher Math high, Biology flagged |
+| SSC Arts | 4 | 19 | **Partly researched** — History high; Civics + Economics flagged; Geography placeholder |
 
-Placeholder chapters read `PLACEHOLDER — বিষয়বস্তু নিশ্চিত করতে হবে`. A student in
-a placeholder group gets a meaningless percentage, so those four groups must be
-filled before launch.
+Subjects whose name ends ` [যাচাই করতে হবে]` were transcribed from medium-confidence
+sources and are visibly flagged in the UI so a teacher can spot them.
 
-A background research agent was dispatched to source the four missing groups; its
-findings were to be written to `research/syllabus-research.md` (git-ignored). **If
-that file exists, treat it as unverified** — check it against the notes below
-before trusting it.
+**Still placeholder (deliberately — research confidence was low or the source was
+unreadable):** SSC ভূগোল ও পরিবেশ, HSC ব্যবসায় সংগঠন ও ব্যবস্থাপনা, HSC ফিন্যান্স
+ব্যাংকিং ও বীমা, HSC সমাজকর্ম.
+
+**Compulsory Bangla / English for HSC Business and Humanities are not populated.**
+Research found a genuine conflict between the 2023 and 2026 official versions —
+different prose, poems and units entirely. That needs a client decision per exam
+year, not a silent merge.
+
+**Critical caveat from the research pass:** no NCTB document for 2027 or 2028
+exists yet. Every researched list is the newest confirmed prior-year baseline
+(SSC 2026, HSC 2023). Re-check nctb.gov.bd closer to each exam, and have a teacher
+confirm against what Edge Course actually teaches.
+
+Full findings with per-subject sources and confidence: `research/syllabus-research.md`
+(git-ignored; regenerate or ask for it if missing).
+
+Placeholder chapters read `PLACEHOLDER — বিষয়বস্তু নিশ্চিত করতে হবে`. A student whose
+selected subjects are all placeholder gets a meaningless percentage.
 
 **Sources already used:**
 - `syllabus-source/HSC Syllabus.txt` — client-supplied, complete for HSC Science.
