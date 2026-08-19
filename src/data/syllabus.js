@@ -240,10 +240,51 @@ function sscCompulsory(p) {
 }
 
 
+/* ----------------------------------------------------- SSC optional ----
+ * Religion and the optional 4th subject, shared across all three SSC groups
+ * the same way sscCompulsory() is — a science, arts or commerce student can
+ * equally take either. Both are unchecked by default (`defaultSelected:
+ * false`): student-images/Islam Shikkha.jpeg is only the Islam textbook, and
+ * assuming it for every student would misprice every non-Muslim student the
+ * same way defaulting কৃষিশিক্ষা on would misprice everyone who does not
+ * take agriculture. The picker screen (needsSubjectPicker) is what makes an
+ * unchecked-by-default optional subject safe to add at all — see the note
+ * on that function in subjects.js.
+ */
+function sscOptional(p) {
+  return {
+    religion_islam: {
+      name: 'ইসলাম ও নৈতিক শিক্ষা (Islam and Moral Education)',
+      compulsory: false, defaultSelected: false,
+      papers: [{ name: '', chapters: ch(`${p}-religion_islam-x`, [
+        'আকাইদ',
+        'ইসলামি শরিয়তের উৎস',
+        'ইবাদত',
+        'আখলাক',
+        'আদর্শ জীবনচরিত',
+      ]) }],
+    },
+    agriculture: {
+      name: 'কৃষিশিক্ষা (Agriculture Studies)',
+      compulsory: false, defaultSelected: false,
+      papers: [{ name: '', chapters: ch(`${p}-agriculture-x`, [
+        'কৃষি প্রযুক্তি',
+        'কৃষি উপকরণ',
+        'কৃষি ও জলবায়ু',
+        'কৃষিজ উৎপাদন',
+        'বনায়ন',
+        'কৃষি সমবায়',
+        'পারিবারিক খামার',
+      ]) }],
+    },
+  };
+}
+
 function sscScience(batch) {
   const p = `ssc${batch}`;
   return {
     ...sscCompulsory(p),
+    ...sscOptional(p),
     bgs: {
       name: 'বাংলাদেশ ও বিশ্বপরিচয় (Bangladesh and Global Studies)',
       compulsory: true, defaultSelected: true,
@@ -349,6 +390,7 @@ function sscArts(batch) {
   });
   return {
     ...sscCompulsory(p),
+    ...sscOptional(p),
     geography: todo('geo', 'ভূগোল ও পরিবেশ (Geography and Environment)'),
     civics: {
       name: 'পৌরনীতি ও নাগরিকতা (Civics and Citizenship) [যাচাই করতে হবে]', compulsory: true, defaultSelected: true,
@@ -391,6 +433,7 @@ function sscCommerce(batch) {
   const p = `ssc${batch}`;
   return {
     ...sscCompulsory(p),
+    ...sscOptional(p),
     science: {
       // Flagged: the client PDF (page 20) itemises only these nine chapters
       // while stating the SSC syllabus is সম্পূর্ণ বই. The SSC Science folder

@@ -51,7 +51,8 @@ function step(state, delta) {
   const i = FLOW.indexOf(state.screen);
   if (i === -1) return null;
   let next = i + delta;
-  // SSC has fixed subjects, so the picker is skipped in both directions.
+  // A level with no optional subjects would skip the picker in both
+  // directions; both levels have one now, so this only matters if that changes.
   if (FLOW[next] === 'subjects' && !needsSubjectPicker(state.level)) next += delta;
   // Enrolled students are never asked for contact details.
   if (FLOW[next] === 'lead' && state.enrolled === true) next += delta;

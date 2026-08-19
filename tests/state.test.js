@@ -95,16 +95,16 @@ test('storage failures are swallowed so private mode never breaks the page', () 
   assert.doesNotThrow(() => clear(hostile));
 });
 
-test('ssc skips the subject picker, hsc does not', () => {
+test('both levels route through the subject picker after group is chosen', () => {
   const ssc = { ...createState(), screen: 'group', level: 'ssc' };
-  assert.equal(nextScreen(ssc), 'syllabus');
+  assert.equal(nextScreen(ssc), 'subjects');
   const hsc = { ...createState(), screen: 'group', level: 'hsc' };
   assert.equal(nextScreen(hsc), 'subjects');
 });
 
-test('going back from the syllabus screen mirrors the forward skip', () => {
+test('going back from the syllabus screen returns to the subject picker for both levels', () => {
   const ssc = { ...createState(), screen: 'syllabus', level: 'ssc' };
-  assert.equal(prevScreen(ssc), 'group');
+  assert.equal(prevScreen(ssc), 'subjects');
   const hsc = { ...createState(), screen: 'syllabus', level: 'hsc' };
   assert.equal(prevScreen(hsc), 'subjects');
 });

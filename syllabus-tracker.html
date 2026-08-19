@@ -986,10 +986,51 @@ function sscCompulsory(p) {
 }
 
 
+/* ----------------------------------------------------- SSC optional ----
+ * Religion and the optional 4th subject, shared across all three SSC groups
+ * the same way sscCompulsory() is — a science, arts or commerce student can
+ * equally take either. Both are unchecked by default (`defaultSelected:
+ * false`): student-images/Islam Shikkha.jpeg is only the Islam textbook, and
+ * assuming it for every student would misprice every non-Muslim student the
+ * same way defaulting কৃষিশিক্ষা on would misprice everyone who does not
+ * take agriculture. The picker screen (needsSubjectPicker) is what makes an
+ * unchecked-by-default optional subject safe to add at all — see the note
+ * on that function in subjects.js.
+ */
+function sscOptional(p) {
+  return {
+    religion_islam: {
+      name: 'ইসলাম ও নৈতিক শিক্ষা (Islam and Moral Education)',
+      compulsory: false, defaultSelected: false,
+      papers: [{ name: '', chapters: ch(`${p}-religion_islam-x`, [
+        'আকাইদ',
+        'ইসলামি শরিয়তের উৎস',
+        'ইবাদত',
+        'আখলাক',
+        'আদর্শ জীবনচরিত',
+      ]) }],
+    },
+    agriculture: {
+      name: 'কৃষিশিক্ষা (Agriculture Studies)',
+      compulsory: false, defaultSelected: false,
+      papers: [{ name: '', chapters: ch(`${p}-agriculture-x`, [
+        'কৃষি প্রযুক্তি',
+        'কৃষি উপকরণ',
+        'কৃষি ও জলবায়ু',
+        'কৃষিজ উৎপাদন',
+        'বনায়ন',
+        'কৃষি সমবায়',
+        'পারিবারিক খামার',
+      ]) }],
+    },
+  };
+}
+
 function sscScience(batch) {
   const p = `ssc${batch}`;
   return {
     ...sscCompulsory(p),
+    ...sscOptional(p),
     bgs: {
       name: 'বাংলাদেশ ও বিশ্বপরিচয় (Bangladesh and Global Studies)',
       compulsory: true, defaultSelected: true,
@@ -1095,6 +1136,7 @@ function sscArts(batch) {
   });
   return {
     ...sscCompulsory(p),
+    ...sscOptional(p),
     geography: todo('geo', 'ভূগোল ও পরিবেশ (Geography and Environment)'),
     civics: {
       name: 'পৌরনীতি ও নাগরিকতা (Civics and Citizenship) [যাচাই করতে হবে]', compulsory: true, defaultSelected: true,
@@ -1137,6 +1179,7 @@ function sscCommerce(batch) {
   const p = `ssc${batch}`;
   return {
     ...sscCompulsory(p),
+    ...sscOptional(p),
     science: {
       // Flagged: the client PDF (page 20) itemises only these nine chapters
       // while stating the SSC syllabus is সম্পূর্ণ বই. The SSC Science folder
@@ -1690,26 +1733,36 @@ const GROUP_LABELS = {
 const GROUP_ORDER = {
   ssc: ['science', 'arts', 'commerce'],
   hsc: ['science', 'business', 'humanities'],
-};function getGroups(level) {
+};
+function getGroups(level) {
   return GROUP_ORDER[level] ? [...GROUP_ORDER[level]] : [];
 }
 
-// SSC subject sets are fixed, so SSC students skip the picker entirely.function needsSubjectPicker(level) {
-  return level === 'hsc';
-}function getSubjects(level, batch, group) {
+// Both levels have at least one optional subject (SSC: religion, agriculture;
+// HSC: Biology / Higher Math on the Science track), so both show the picker.
+// A group with zero optional subjects still renders correctly -- the screen
+// is just a list of locked, pre-checked compulsory subjects with nothing to
+// toggle -- so this does not need to vary per group.
+function needsSubjectPicker(level) {
+  return level === 'ssc' || level === 'hsc';
+}
+function getSubjects(level, batch, group) {
   const entry = SYLLABUS[level]?.[batch]?.[group];
   if (!entry) return [];
   return Object.entries(entry.subjects).map(([id, s]) => ({ id, ...s }));
-}function getDefaultSelectedIds(level, batch, group) {
+}
+function getDefaultSelectedIds(level, batch, group) {
   return getSubjects(level, batch, group)
     .filter((s) => s.compulsory || s.defaultSelected)
     .map((s) => s.id);
-}function countChapters(subjects) {
+}
+function countChapters(subjects) {
   return subjects.reduce(
     (total, s) => total + s.papers.reduce((n, p) => n + p.chapters.length, 0),
     0,
   );
-}function allChapterIds(subjects) {
+}
+function allChapterIds(subjects) {
   return subjects.flatMap((s) => s.papers.flatMap((p) => p.chapters.map((c) => c.id)));
 }
 
@@ -1823,7 +1876,8 @@ function step(state, delta) {
   const i = FLOW.indexOf(state.screen);
   if (i === -1) return null;
   let next = i + delta;
-  // SSC has fixed subjects, so the picker is skipped in both directions.
+  // A level with no optional subjects would skip the picker in both
+  // directions; both levels have one now, so this only matters if that changes.
   if (FLOW[next] === 'subjects' && !needsSubjectPicker(state.level)) next += delta;
   // Enrolled students are never asked for contact details.
   if (FLOW[next] === 'lead' && state.enrolled === true) next += delta;

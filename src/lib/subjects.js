@@ -9,9 +9,13 @@ export function getGroups(level) {
   return GROUP_ORDER[level] ? [...GROUP_ORDER[level]] : [];
 }
 
-// SSC subject sets are fixed, so SSC students skip the picker entirely.
+// Both levels have at least one optional subject (SSC: religion, agriculture;
+// HSC: Biology / Higher Math on the Science track), so both show the picker.
+// A group with zero optional subjects still renders correctly -- the screen
+// is just a list of locked, pre-checked compulsory subjects with nothing to
+// toggle -- so this does not need to vary per group.
 export function needsSubjectPicker(level) {
-  return level === 'hsc';
+  return level === 'ssc' || level === 'hsc';
 }
 
 export function getSubjects(level, batch, group) {

@@ -10,9 +10,21 @@ test('ssc offers three groups, hsc offers three groups', () => {
   assert.deepEqual(getGroups('hsc'), ['science', 'business', 'humanities']);
 });
 
-test('only hsc shows the subject picker', () => {
+test('both levels show the subject picker, since both have optional subjects', () => {
   assert.equal(needsSubjectPicker('hsc'), true);
-  assert.equal(needsSubjectPicker('ssc'), false);
+  assert.equal(needsSubjectPicker('ssc'), true);
+});
+
+test('every ssc group has at least one non-compulsory subject for the picker to offer', () => {
+  for (const batch of ['27', '28']) {
+    for (const group of getGroups('ssc')) {
+      const subjects = getSubjects('ssc', batch, group);
+      assert.ok(
+        subjects.some((s) => !s.compulsory),
+        `${batch}/${group} has no optional subject -- the picker would show nothing to toggle`,
+      );
+    }
+  }
 });
 
 test('every subject has a unique id within its group', () => {
@@ -49,10 +61,22 @@ test('compulsory subjects are always default selected', () => {
   }
 });
 
-test('ssc groups have every subject compulsory since there is no picker', () => {
+test('ssc groups have both compulsory and optional subjects', () => {
   for (const group of getGroups('ssc')) {
-    for (const s of getSubjects('ssc', '27', group)) {
-      assert.equal(s.compulsory, true, `${s.id} must be compulsory for ssc`);
+    const subjects = getSubjects('ssc', '27', group);
+    assert.ok(subjects.some((s) => s.compulsory), `${group} should have compulsory subjects`);
+    assert.ok(subjects.some((s) => !s.compulsory), `${group} should have optional subjects`);
+  }
+});
+
+test('ssc optional subjects are unchecked by default, unlike HSC optional subjects', () => {
+  // Islam Shikkha and Krishi are only one religion's textbook / one optional
+  // 4th subject, so they must not be assumed for every student the way HSC's
+  // optional Biology/Higher Math are (those default on).
+  for (const group of getGroups('ssc')) {
+    const optional = getSubjects('ssc', '27', group).filter((s) => !s.compulsory);
+    for (const s of optional) {
+      assert.equal(s.defaultSelected, false, `${s.id} must not be pre-ticked`);
     }
   }
 });
