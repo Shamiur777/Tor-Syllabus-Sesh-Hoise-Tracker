@@ -34,9 +34,57 @@ function topbar(state) {
 }
 
 // Decorative background wash. Presentational only, so it is hidden from
-// assistive tech and never receives pointer events.
+// assistive tech and never receives pointer events. Three blurred colour
+// orbs plus a handful of line-art study icons (book, pencil, checklist,
+// graduation cap, sparkle) scattered across a fixed canvas -- built with
+// createElementNS like progressDock()'s <svg>, since el() uses
+// createElement and would produce an unstyled HTMLUnknownElement for SVG
+// tags. Every icon uses `color` + currentColor rather than a hardcoded
+// hex, so it recolors automatically when data-brand switches theme.
+function bgVectors() {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('class', 'bgvec');
+  svg.setAttribute('viewBox', '0 0 390 844');
+  svg.setAttribute('preserveAspectRatio', 'xMidYMid slice');
+  svg.innerHTML = `
+    <g class="glyph float" style="color:var(--accent);opacity:.14" transform="translate(58,118) rotate(-12)">
+      <path d="M0,-14 C-14,-20 -28,-18 -28,-18 L-28,14 C-28,14 -14,12 0,18 C14,12 28,14 28,14 L28,-18 C28,-18 14,-20 0,-14 Z"/>
+      <path d="M0,-14 L0,18"/>
+    </g>
+    <g class="glyph float float--slow" style="color:var(--line);opacity:.6" transform="translate(332,88) scale(.85)">
+      <circle cx="0" cy="0" r="17"/>
+      <path d="M-7,1 L-2,7 L8,-8"/>
+    </g>
+    <g class="glyph" style="color:var(--accent-2);opacity:.16" transform="translate(348,298) rotate(35)">
+      <rect x="-4" y="-22" width="8" height="30" rx="3"/>
+      <path d="M-4,8 L0,22 L4,8 Z"/>
+      <line x1="-4" y1="-14" x2="4" y2="-14"/>
+    </g>
+    <g class="glyph float" style="color:var(--line);opacity:.6" transform="translate(38,432) rotate(8)">
+      <rect x="-15" y="-21" width="30" height="38" rx="4"/>
+      <path d="M-8,-9 L-3,-4 L7,-15"/>
+      <line x1="-8" y1="4" x2="8" y2="4"/>
+      <line x1="-8" y1="12" x2="8" y2="12"/>
+    </g>
+    <g class="glyph float float--slow" style="color:var(--accent);opacity:.12" transform="translate(322,562) rotate(-8)">
+      <path d="M0,-15 L27,-4 L0,7 L-27,-4 Z"/>
+      <path d="M-13,0 L-13,13 C-13,13 0,19 13,13 L13,0"/>
+      <line x1="27" y1="-4" x2="27" y2="11"/>
+    </g>
+    <g class="glyph--fill" style="color:var(--accent-2);opacity:.5" transform="translate(66,700) scale(.55)">
+      <path d="M0,-18 L4,-4 L18,0 L4,4 L0,18 L-4,4 L-18,0 L-4,-4 Z"/>
+    </g>
+    <g class="glyph" style="color:var(--line);opacity:.5" transform="translate(232,764) rotate(20) scale(.85)">
+      <path d="M0,-14 C-14,-20 -28,-18 -28,-18 L-28,14 C-28,14 -14,12 0,18 C14,12 28,14 28,14 L28,-18 C28,-18 14,-20 0,-14 Z"/>
+      <path d="M0,-14 L0,18"/>
+    </g>
+  `;
+  return svg;
+}
+
 function orbs() {
   return el('div', { class: 'orbs', 'aria-hidden': 'true' },
+    bgVectors(),
     el('span', { class: 'orb orb--1' }),
     el('span', { class: 'orb orb--2' }),
     el('span', { class: 'orb orb--3' }));

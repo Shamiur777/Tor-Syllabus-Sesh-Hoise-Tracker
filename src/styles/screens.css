@@ -8,8 +8,27 @@
   z-index: 1;
 }
 
-/* Decorative orbs behind the content. Purely presentational, aria-hidden. */
+/* Decorative background behind the content: blurred orbs, a faint dot-grid
+ * texture and a handful of line-art study icons (book, pencil, checklist,
+ * cap, sparkle). All of it is purely presentational, aria-hidden, built only
+ * from theme tokens (--accent/--accent-2/--line) so it recolors automatically
+ * on data-brand toggle, and none of it touches --bg/--surface/--logo-bg —
+ * those stay exactly as sampled from the client's logo artwork (see the note
+ * at the top of tokens.css). No blur filter on the new pieces: .orbs is
+ * rebuilt from scratch on every render (every chapter tick), and blur is the
+ * expensive part of the existing orbs — plain strokes and a CSS gradient
+ * keep that cost from growing. */
 .orbs { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+.orbs::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(var(--line) 1.4px, transparent 1.4px);
+  background-size: 30px 30px;
+  opacity: .6;
+  -webkit-mask-image: radial-gradient(130% 100% at 50% 0%, #000 8%, transparent 78%);
+  mask-image: radial-gradient(130% 100% at 50% 0%, #000 8%, transparent 78%);
+}
 .orb {
   position: absolute;
   border-radius: 50%;
@@ -19,6 +38,13 @@
 .orb--1 { width: 320px; height: 320px; top: -90px; inset-inline-start: -80px; background: var(--accent); opacity: .16; }
 .orb--2 { width: 260px; height: 260px; top: 32%; inset-inline-end: -110px; background: var(--accent-2); opacity: .13; }
 .orb--3 { width: 300px; height: 300px; bottom: -120px; inset-inline-start: 20%; background: var(--accent); opacity: .1; }
+
+.bgvec { position: absolute; inset: 0; width: 100%; height: 100%; }
+.bgvec .glyph { fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.bgvec .glyph--fill { fill: currentColor; stroke: none; }
+@keyframes bgvec-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
+.bgvec .float { animation: bgvec-float 9s var(--ease) infinite; }
+.bgvec .float--slow { animation-duration: 13s; }
 
 .screen { display: none; }
 .screen.is-active { display: block; animation: rise .45s var(--ease) both; }
