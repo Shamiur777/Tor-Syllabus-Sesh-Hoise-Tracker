@@ -6,7 +6,21 @@
 //                  from the web on 2026-08-19 (see that file's note).
 //   SSC Commerce — client-supplied `syllabus-source/SSC Commerce Syllabus.pdf`
 //                  (2027 SSC exam syllabus). Read from the rendered pages
-//                  because the PDF's text layer is corrupted.
+//                  because the PDF's text layer is corrupted. The four business
+//                  subjects came from that file first; the compulsory
+//                  Bangla / English / Maths / Science were added on 2026-08-19
+//                  from the same file (printed pages 3-6, 9-11, 14-16, 20).
+//                  That PDF states the SSC syllabus is the whole book for each
+//                  compulsory subject but only itemises chapters through the
+//                  school-exam breakdowns, so two lists are short of the book
+//                  and nothing was filled in from memory:
+//                    - গণিত is missing only the twelfth chapter (16 of 17).
+//                    - বিজ্ঞান has just the nine itemised chapters, so it is
+//                      flagged ` [যাচাই করতে হবে]` in the UI.
+//                  বাংলা ২য় পত্র is modelled as the seven written/MCQ sections
+//                  of the exam structure rather than the per-item lists (single
+//                  সারমর্ম passages, individual রচনা topics), which are far too
+//                  granular to tick off.
 //   SSC Science, SSC Arts (history/economics/civics), HSC Business
 //   (accounting/marketing), and HSC Humanities (civics/economics/history/
 //   islamic_history/logic/sociology/geography/psychology/statistics) —
@@ -16,12 +30,16 @@
 //   as medium) have ` [যাচাই করতে হবে]` appended to their name so the
 //   uncertainty is visible in the UI: SSC Science Biology, SSC Arts
 //   Economics, SSC Arts Civics and Citizenship, HSC Humanities Sociology.
+//   SSC Commerce Science carries the same flag for a different reason — see
+//   the SSC Commerce note above.
 //
 // STILL PLACEHOLDER, pending research/client confirmation (research
 // confidence was low/low-medium/unverified, so nothing was transcribed):
 //   SSC Arts Geography and Environment, HSC Business Organisation and
 //   Management, HSC Finance/Banking/Insurance, HSC Social Work, and the
-//   compulsory Bangla/English/Maths for SSC Commerce.
+//   and the compulsory Bangla/English for HSC Business and HSC Humanities
+//   (the 2023 and 2026 official versions disagree on prose, poems and units
+//   entirely, so this needs a client decision per exam year, not a merge).
 //   Those keep structurally-correct sample chapters so the app runs; they
 //   must be replaced before launch or their percentages are meaningless.
 //
@@ -139,6 +157,126 @@ function sscArts(batch) {
 function sscCommerce(batch) {
   const p = `ssc${batch}`;
   return {
+    bangla: {
+      name: 'বাংলা (Bangla)', compulsory: true, defaultSelected: true,
+      papers: [
+        { name: '১ম পত্র', chapters: ch(`${p}-bangla-1`, [
+          'গদ্য: প্রত্যুপকার',
+          'গদ্য: ফুলের বিবাহ',
+          'গদ্য: সুভা',
+          'গদ্য: বইপড়া',
+          'গদ্য: নিরীহ বাঙালি',
+          'গদ্য: পল্লিসাহিত্য',
+          'গদ্য: আম-আঁটির ভেঁপু',
+          'গদ্য: মানুষ মুহম্মদ (স.)',
+          'গদ্য: উপেক্ষিত শক্তির উদ্বোধন',
+          'গদ্য: প্রবাস বন্ধু',
+          'গদ্য: মমতাদি',
+          'গদ্য: একুশের গল্প',
+          'পদ্য: বন্দনা',
+          'পদ্য: কপোতাক্ষ নদ',
+          'পদ্য: প্রাণ',
+          'পদ্য: অন্ধবধূ',
+          'পদ্য: জীবন বিনিময়',
+          'পদ্য: উমর ফারুক',
+          'পদ্য: সেইদিন এই মাঠ',
+          'পদ্য: যাব আমি তোমার দেশে',
+          'পদ্য: বৃষ্টি',
+          'পদ্য: আমি কোনো আগন্তুক নই',
+          'পদ্য: রানার',
+          'পদ্য: তোমাকে পাওয়ার জন্যে, হে স্বাধীনতা',
+          'সহপাঠ: ১৯৭১ (উপন্যাস)',
+          'সহপাঠ: বহিপীর (নাটক)',
+        ]) },
+        { name: '২য় পত্র', chapters: ch(`${p}-bangla-2`, [
+          'ব্যাকরণ (পরিচ্ছেদসমূহ)',
+          'অনুচ্ছেদ রচনা',
+          'চিঠিপত্র ও সংবাদ প্রতিবেদন',
+          'সারাংশ ও সারমর্ম',
+          'ভাবসম্প্রসারণ',
+          'অনুবাদ (ইংরেজি থেকে বাংলা)',
+          'প্রবন্ধ ও রচনা',
+        ]) },
+      ],
+    },
+    english: {
+      name: 'ইংরেজি (English)', compulsory: true, defaultSelected: true,
+      papers: [
+        { name: '১ম পত্র', chapters: ch(`${p}-english-1`, [
+          'Unit 1: Sense of Self',
+          'Unit 2: Climate Change',
+          'Unit 3: Pastimes',
+          'Unit 4: Events and Festivals',
+          'Unit 5: Problems Around Us',
+          'Unit 6: Our Neighbours',
+          'Unit 7: People Who Stand Out',
+          'Unit 8: World Heritage',
+          'Unit 9: Unconventional Jobs',
+          'Unit 10: Dreams',
+          'Unit 11: Reading from English Literature',
+          'Unit 12: Roots',
+          'Unit 16: Graffiti',
+          'Writing: Completing Stories',
+          'Writing: Writing Dialogues',
+        ]) },
+        { name: '২য় পত্র', chapters: ch(`${p}-english-2`, [
+          'Gap Filling with Clues',
+          'Substitution Table',
+          'Right Form of Verbs',
+          'Changing Sentences',
+          'Tag Questions',
+          'Suffixes and Prefixes',
+          'Prepositions',
+          'Connectors / Linking Words',
+          'Punctuation and Capitalization',
+          'Writing Paragraph',
+          'Writing E-mail / Letter / Application',
+          'Writing Short Composition',
+        ]) },
+      ],
+    },
+    math: {
+      name: 'গণিত (General Mathematics)', compulsory: true, defaultSelected: true,
+      // The SSC 2027 syllabus is the whole book; the client PDF only itemises
+      // chapters through the school-exam breakdowns (pages 15-16), which name
+      // every chapter except the twelfth. That one chapter is deliberately left
+      // out rather than guessed — see the header note.
+      papers: [{ name: '', chapters: ch(`${p}-math-x`, [
+        'বাস্তব সংখ্যা',
+        'সেট ও ফাংশন',
+        'বীজগাণিতিক রাশি',
+        'সূচক ও লগারিদম',
+        'এক চলকবিশিষ্ট সমীকরণ',
+        'রেখা, কোণ ও ত্রিভুজ',
+        'ব্যবহারিক জ্যামিতি',
+        'বৃত্ত',
+        'ত্রিকোণমিতিক অনুপাত',
+        'দূরত্ব ও উচ্চতা',
+        'বীজগাণিতিক অনুপাত ও সমানুপাত',
+        'সসীম ধারা',
+        'অনুপাত, সদৃশতা ও প্রতিসমতা',
+        'ক্ষেত্রফল সম্পর্কিত উপপাদ্য ও সম্পাদ্য',
+        'পরিমিতি',
+        'পরিসংখ্যান',
+      ]) }],
+    },
+    science: {
+      // Flagged: the client PDF (page 20) itemises only the first nine chapters
+      // across the school-exam breakdowns while the SSC syllabus is the whole
+      // book, so the later chapters are missing rather than invented.
+      name: 'বিজ্ঞান (Science) [যাচাই করতে হবে]', compulsory: true, defaultSelected: true,
+      papers: [{ name: '', chapters: ch(`${p}-science-x`, [
+        'উন্নততর জীবনধারা',
+        'জীবনের জন্য পানি',
+        'হৃদযন্ত্রের যত কথা',
+        'নবজীবনের সূচনা',
+        'দেখতে হলে আলো চাই',
+        'পলিমার',
+        'অম্ল, ক্ষারক ও লবণের ব্যবহার',
+        'আমাদের সম্পদ',
+        'দুর্যোগের সাথে বসবাস',
+      ]) }],
+    },
     accounting: {
       name: 'হিসাববিজ্ঞান (Accounting)', compulsory: true, defaultSelected: true,
       papers: [{ name: '', chapters: ch(`${p}-acc-x`, [

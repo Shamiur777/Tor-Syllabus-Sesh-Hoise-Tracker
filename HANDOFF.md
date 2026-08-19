@@ -82,14 +82,16 @@ These all look like mistakes and are not. Do not "fix" them without reading why.
 | Group | Subjects | Chapters | Status |
 |---|---|---|---|
 | HSC Science | 7 | 115 | **Real** — client file |
-| SSC Commerce | 4 | 40 | **Real** — client PDF |
+| SSC Commerce | 8 | 125 | **Real** — client PDF; বিজ্ঞান flagged (see below) |
 | HSC Humanities | 11 | 113 | **Researched** — 8 high-confidence, Sociology flagged, Social Work placeholder |
 | HSC Business Studies | 5 | 30 | **Partly researched** — Accounting + Production/Marketing done; Management and Finance placeholder |
 | SSC Science | 4 | 28 | **Researched** — Physics/Chemistry/Higher Math high, Biology flagged |
 | SSC Arts | 4 | 19 | **Partly researched** — History high; Civics + Economics flagged; Geography placeholder |
 
 Subjects whose name ends ` [যাচাই করতে হবে]` were transcribed from medium-confidence
-sources and are visibly flagged in the UI so a teacher can spot them.
+sources and are visibly flagged in the UI so a teacher can spot them. SSC Commerce
+বিজ্ঞান carries the same flag for a different reason: the client PDF itemises only
+nine of the book's chapters (see below).
 
 **Still placeholder (deliberately — research confidence was low or the source was
 unreadable):** SSC ভূগোল ও পরিবেশ, HSC ব্যবসায় সংগঠন ও ব্যবস্থাপনা, HSC ফিন্যান্স
@@ -124,10 +126,21 @@ selected subjects are all placeholder gets a meaningless percentage.
   d = fitz.open("syllabus-source/SSC Commerce Syllabus.pdf")
   d[n].get_pixmap(dpi=140).save(f"p{n:02d}.png")
   ```
-  Page mapping: file index = printed page − 1. Still unread: গণিত (printed 14–15),
-  বিজ্ঞান (20), বাংলা (3, 5), ইংরেজি (9, 11), plus religion / career / physical ed.
-  Those compulsory subjects are **not yet in SSC Commerce**, so its percentage
-  currently covers only the four business subjects.
+  Page mapping: file index = printed page − 1. All compulsory-subject pages have
+  now been read: বাংলা (printed 3–6), ইংরেজি (9–11), গণিত (14–16), বিজ্ঞান (20).
+  Still unread: religion / career / physical education, and কৃষিশিক্ষা (21).
+  বাংলা, ইংরেজি, গণিত and বিজ্ঞান are now in SSC Commerce, so its percentage
+  covers all eight subjects (125 chapters). Two caveats, both
+  because the PDF says "সম্পূর্ণ বই" for the SSC exam but only itemises chapters
+  through the *school* exam breakdowns:
+    - গণিত has 16 of the book's 17 chapters. The twelfth is named nowhere in the
+      file and was left out rather than guessed.
+    - বিজ্ঞান has only the nine itemised chapters, so it is flagged in the UI.
+  বাংলা ২য় পত্র is modelled as the seven written/MCQ sections of the exam
+  structure — the PDF's per-item lists (individual সারমর্ম passages, specific
+  রচনা topics) are too granular to tick off.
+  `SCHEMA_VERSION` was bumped 2 → 3 with this change, because SSC Commerce
+  students' denominator moved from 40 to 125.
 
 **Rules when adding content:**
 - Never invent a chapter. A fabricated chapter silently corrupts every student's
