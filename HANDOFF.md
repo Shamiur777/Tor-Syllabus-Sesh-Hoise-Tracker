@@ -142,6 +142,36 @@ selected subjects are all placeholder gets a meaningless percentage.
   `SCHEMA_VERSION` was bumped 2 → 3 with this change, because SSC Commerce
   students' denominator moved from 40 to 125.
 
+**Cross-check, 2026-08-19.** The client sent
+`http://sib.gov.bd/downloads/1228994770.pdf` asking for a cross-check. That file
+is **byte-identical** to `syllabus-source/SSC Commerce Syllabus.pdf`
+(sha256 `8bc8e5dc5c9f84f82ae0c8d161d2dcc9c39752c05fd16f128f858130ada174e1`), so
+there is no newer edition to reconcile — do not re-download it expecting a diff.
+
+The four business subjects were re-verified against the source pages and all
+match exactly, names and order included: হিসাববিজ্ঞান 11 (printed 24),
+ফিন্যান্স ও ব্যাংকিং 12 (26), ব্যবসায় উদ্যোগ 12 (23), ICT 5 (27).
+
+Three chapter-count questions remain open. **None can be settled from the
+syllabus PDF — they need the actual textbooks or a teacher.** For accounting,
+finance and entrepreneurship the school-exam breakdowns do enumerate the whole
+book, so a list that stops short is a real signal:
+
+| Question | App has | Evidence |
+|---|---|---|
+| What is গণিত chapter 12? | 16 of 17 | Provable gap: chapter 17 is itemised, 12 never is |
+| Does বিজ্ঞান have chapters past 9? | 9 | List stops at 9 while the SSC syllabus is সম্পূর্ণ বই |
+| Does ICT have a chapter 6? | 5 | Same shape as বিজ্ঞান; not flagged in the UI (see below) |
+
+বিজ্ঞান is flagged ` [যাচাই করতে হবে]`; ICT deliberately is not, because nothing
+inside the document proves it is incomplete — it may genuinely be a 5-chapter
+book, and over-flagging dilutes the signal for teachers. If a teacher confirms a
+sixth chapter, add it and flag ICT to match.
+
+Also in the PDF but not in the app: কৃষিশিক্ষা (code 134, printed 21) and subject
+codes 147 (printed 25) and 156 (printed 29). Confirm with the client that these
+are intentionally out of scope.
+
 **Rules when adding content:**
 - Never invent a chapter. A fabricated chapter silently corrupts every student's
   percentage. Leave a gap and flag it instead.
