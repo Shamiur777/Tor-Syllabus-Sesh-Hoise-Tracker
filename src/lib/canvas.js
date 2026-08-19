@@ -49,8 +49,13 @@ export async function renderResultImage({ name, institute, percent, tier, level 
   ctx.fillStyle = brand.canvasBg;
   ctx.fillRect(0, 0, width, height);
 
+  // A perfect score gets the client's joke image instead of the tier artwork.
+  const artSrc = percent >= 100 && CONFIG.perfectImage
+    ? CONFIG.perfectImage
+    : CONFIG.resultImages[tier.id];
+
   const [bg, logo] = await Promise.all([
-    loadImage(CONFIG.resultImages[tier.id]),
+    loadImage(artSrc),
     loadImage(brand.logo),
   ]);
 

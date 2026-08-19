@@ -72,4 +72,8 @@ export const CONFIG = {
     'batch28-tier4': 'images/results/batch28-tier4.png',
   },
   canvas: { width: 1080, height: 1920 },
+
+  // Shown instead of the tier image when a student reports exactly 100%.
+  // The client's joke response to a suspiciously perfect score.
+  perfectImage: 'images/results/perfect.png',
 };

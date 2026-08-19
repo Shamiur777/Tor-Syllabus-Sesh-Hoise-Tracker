@@ -1,115 +1,265 @@
+/* Components. Every interactive element clears the 44px tap floor. */
+
 .card {
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: var(--r-md);
+  border-radius: var(--r-lg);
   box-shadow: var(--shadow);
 }
 
+/* ---------- buttons ---------- */
+
 .btn {
-  min-height: var(--tap);
-  padding: 0 22px;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 54px;
+  padding: 0 26px;
   border: 0;
   border-radius: 999px;
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: 1.05rem;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  font-size: 1.1rem;
+  letter-spacing: .01em;
+  transition: transform .18s var(--ease), box-shadow .25s var(--ease), background .2s var(--ease);
 }
-.btn:active { transform: translateY(1px); }
-.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn:active { transform: translateY(2px) scale(.99); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
 
-.btn--primary { background: var(--accent); color: var(--accent-ink); }
-.btn--ghost { background: transparent; color: var(--ink-soft); border: 1px solid var(--line); }
+.btn--primary {
+  background: var(--accent);
+  color: var(--accent-ink);
+  box-shadow: var(--glow-accent);
+}
+.btn--primary:hover { transform: translateY(-2px); }
 
-/* Big tappable option tiles used for class, batch and group selection. */
+.btn--ghost {
+  background: transparent;
+  color: var(--ink-soft);
+  border: 1.5px solid var(--line);
+  box-shadow: none;
+  font-size: 1rem;
+}
+.btn--ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ---------- choice tiles ---------- */
+
 .choice {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  min-height: 72px;
+  padding: 18px 22px;
+  background: var(--surface);
+  border: 1.5px solid var(--line);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow);
+  text-align: start;
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  color: var(--ink);
+  overflow: hidden;
+  transition: transform .2s var(--ease), border-color .2s var(--ease),
+              box-shadow .25s var(--ease), background .2s var(--ease);
+}
+/* Accent rail that fills in on hover/selection. */
+.choice::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: 0;
+  inset-block: 0;
+  width: 5px;
+  background: var(--accent);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform .28s var(--ease);
+}
+.choice::after {
+  content: '';
+  margin-inline-start: auto;
+  width: 11px; height: 11px;
+  border-inline-end: 2.5px solid var(--ink-faint);
+  border-block-start: 2.5px solid var(--ink-faint);
+  transform: rotate(45deg);
+  transition: border-color .2s var(--ease), transform .2s var(--ease);
+}
+.choice:hover {
+  transform: translateY(-3px);
+  border-color: var(--accent);
+  box-shadow: var(--shadow-lg);
+}
+.choice:hover::before, .choice.is-selected::before { transform: scaleY(1); }
+.choice:hover::after { border-color: var(--accent); transform: rotate(45deg) translate(2px, -2px); }
+.choice.is-selected {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.choice.is-selected::after { border-color: var(--accent); }
+
+/* ---------- checkboxes ---------- */
+
+.check {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  min-height: var(--tap);
+  padding: 10px 12px;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  transition: background .18s var(--ease);
+}
+.check:hover { background: var(--accent-soft); }
+.check input {
+  flex: 0 0 auto;
+  width: 23px;
+  height: 23px;
+  margin: 3px 0 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+.check.is-locked { opacity: .72; cursor: default; }
+.check__label { flex: 1; line-height: 1.5; }
+
+@keyframes pop { 0% { transform: scale(1); } 45% { transform: scale(1.28); } 100% { transform: scale(1); } }
+.check input:checked { animation: pop .24s var(--ease); }
+
+/* ---------- accordion ---------- */
+
+.accordion {
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  transition: box-shadow .25s var(--ease), border-color .2s var(--ease);
+}
+.accordion:hover { border-color: color-mix(in srgb, var(--accent) 40%, var(--line)); }
+.accordion + .accordion { margin-top: 14px; }
+
+.accordion__head {
   display: flex;
   align-items: center;
   gap: 14px;
   width: 100%;
   min-height: 64px;
-  padding: 16px 20px;
-  background: var(--surface);
-  border: 2px solid var(--line);
-  border-radius: var(--r-md);
-  text-align: start;
-  font-family: var(--font-display);
-  font-size: 1.15rem;
-  transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
-}
-.choice:hover { border-color: var(--accent); transform: translateY(-2px); }
-.choice.is-selected { border-color: var(--accent); background: var(--accent-soft); }
-
-/* Chapter and subject checkboxes. The native input stays in the DOM for
-   accessibility and keyboard use; only its box is restyled. */
-.check {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  min-height: var(--tap);
-  padding: 8px 10px;
-  border-radius: var(--r-sm);
-  cursor: pointer;
-  transition: background 0.15s ease;
-}
-.check:hover { background: var(--accent-soft); }
-.check input {
-  flex: 0 0 auto;
-  width: 22px;
-  height: 22px;
-  margin: 4px 0 0;
-  accent-color: var(--accent);
-}
-.check.is-locked { opacity: 0.7; cursor: default; }
-.check__label { flex: 1; }
-
-@keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.25); } 100% { transform: scale(1); } }
-.check input:checked { animation: pop 0.22s ease; }
-
-.accordion { border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); overflow: hidden; }
-.accordion + .accordion { margin-top: 12px; }
-.accordion__head {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  min-height: 60px;
-  padding: 12px 16px;
+  padding: 14px 18px;
   background: none;
   border: 0;
   font-family: var(--font-display);
-  font-size: 1.05rem;
+  font-size: 1.12rem;
+  color: var(--ink);
   text-align: start;
 }
-.accordion__body { padding: 4px 12px 14px; }
+.accordion__count {
+  font-family: var(--font-body);
+  font-size: .9rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  white-space: nowrap;
+}
+.accordion__chev {
+  width: 9px; height: 9px;
+  border-inline-end: 2.5px solid var(--ink-faint);
+  border-block-end: 2.5px solid var(--ink-faint);
+  transform: rotate(45deg);
+  transition: transform .28s var(--ease);
+}
+.accordion__head[aria-expanded='true'] .accordion__chev { transform: rotate(-135deg); }
+.accordion__body { padding: 2px 12px 16px; }
 .accordion__body[hidden] { display: none; }
+.paper-label {
+  margin: 12px 0 4px;
+  padding-inline-start: 12px;
+  font-family: var(--font-display);
+  font-size: .82rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
 
-.bar { height: 8px; border-radius: 999px; background: var(--line); overflow: hidden; }
-.bar__fill { height: 100%; background: var(--accent); border-radius: 999px; transition: width 0.4s ease; }
+/* ---------- bars and ring ---------- */
 
-/* Progress ring. stroke-dashoffset is set from JS; circumference is 2πr with r=52. */
-.ring { display: block; transform: rotate(-90deg); }
-.ring__track { fill: none; stroke: var(--line); stroke-width: 12; }
+.bar { height: 7px; border-radius: 999px; background: var(--line); overflow: hidden; }
+.bar__fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  transition: width .55s var(--ease);
+}
+
+.ring { display: block; transform: rotate(-90deg); overflow: visible; }
+.ring__track { fill: none; stroke: var(--line); stroke-width: 11; }
 .ring__fill {
   fill: none;
   stroke: var(--accent);
-  stroke-width: 12;
+  stroke-width: 11;
   stroke-linecap: round;
   stroke-dasharray: 326.7;
-  transition: stroke-dashoffset 0.5s ease;
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--accent) 55%, transparent));
+  transition: stroke-dashoffset .7s var(--ease);
 }
 
-.field { display: block; margin-bottom: 18px; }
-.field__label { display: block; margin-bottom: 6px; font-weight: 600; }
+/* ---------- fields ---------- */
+
+.field { display: block; margin-bottom: 20px; }
+.field__label {
+  display: block;
+  margin-bottom: 8px;
+  font-family: var(--font-display);
+  font-size: .95rem;
+  color: var(--ink-soft);
+}
 .field__input {
   width: 100%;
-  min-height: var(--tap);
-  padding: 10px 14px;
-  border: 2px solid var(--line);
+  min-height: 54px;
+  padding: 12px 18px;
+  border: 1.5px solid var(--line);
   border-radius: var(--r-sm);
   background: var(--surface);
   color: var(--ink);
+  transition: border-color .2s var(--ease), box-shadow .2s var(--ease);
 }
-.field__input:focus { border-color: var(--accent); outline: none; }
-.field__error { display: block; margin-top: 6px; color: var(--bad); font-size: 0.9rem; min-height: 1.2em; }
-.field--invalid .field__input { border-color: var(--bad); }
+.field__input::placeholder { color: var(--ink-faint); }
+.field__input:focus {
+  border-color: var(--accent);
+  outline: none;
+  box-shadow: 0 0 0 4px var(--accent-soft);
+}
+.field__error {
+  display: block;
+  margin-top: 7px;
+  color: var(--bad);
+  font-size: .9rem;
+  min-height: 1.2em;
+}
+
+/* ---------- misc ---------- */
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 16px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-family: var(--font-display);
+  font-size: .88rem;
+  letter-spacing: .04em;
+}
+body[data-brand='hsc'] .pill { color: var(--accent-2); }
+
+.divider {
+  height: 1px;
+  border: 0;
+  margin: var(--sp-5) 0;
+  background: linear-gradient(90deg, transparent, var(--line), transparent);
+}

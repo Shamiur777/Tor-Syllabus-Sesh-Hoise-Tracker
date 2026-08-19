@@ -32,6 +32,30 @@ function topbar(state) {
   );
 }
 
+// Decorative background wash. Presentational only, so it is hidden from
+// assistive tech and never receives pointer events.
+function orbs() {
+  return el('div', { class: 'orbs', 'aria-hidden': 'true' },
+    el('span', { class: 'orb orb--1' }),
+    el('span', { class: 'orb orb--2' }),
+    el('span', { class: 'orb orb--3' }));
+}
+
+// Before a level is picked there is no single brand, so both schools are
+// shown. Each logo sits on a chip filled with its own background colour,
+// because the artwork is opaque JPEG rather than transparent PNG.
+function brandPair() {
+  const item = (key) => {
+    const b = CONFIG.brands[key];
+    return el('span', { class: 'brandpair__item', style: `background:${b.logoBg}` },
+      el('img', { src: b.logo, alt: b.name }));
+  };
+  return el('div', { class: 'brandpair' },
+    item('ssc'),
+    el('span', { class: 'brandpair__x', 'aria-hidden': 'true', text: '✕' }),
+    item('hsc'));
+}
+
 function screenLanding(state, h) {
   const nameErr = el('span', { class: 'field__error' });
   const instErr = el('span', { class: 'field__error' });
@@ -49,10 +73,16 @@ function screenLanding(state, h) {
 
   return el(
     'section', { class: 'screen is-active' },
-    el('h1', { class: 'hero__title', text: 'তোর সিলেবাস শেষ হইসে ট্র্যাকার' }),
-    el('p', { class: 'hero__sub', text: 'চ্যাপ্টারগুলো টিক দাও, দেখো তোমার সিলেবাসের কতটুকু শেষ।' }),
-    el('div', { class: 'stack stagger' },
-      el('label', { class: 'field' }, el('span', { class: 'field__label', text: 'নাম' }), nameInput, nameErr),
+    brandPair(),
+    el('div', { class: 'hero stagger' },
+      el('span', { class: 'pill', text: 'SSC ও HSC ২৭ / ২৮' }),
+      el('h1', { class: 'hero__title' },
+        'তোর সিলেবাস ',
+        el('span', { class: 'hl', text: 'শেষ হইসে' }),
+        ' ট্র্যাকার'),
+      el('p', { class: 'hero__sub', text: 'চ্যাপ্টারগুলো টিক দাও, এক মিনিটেই দেখো তোমার সিলেবাসের কতটুকু শেষ।' })),
+    el('div', { class: 'formcard stagger' },
+      el('label', { class: 'field' }, el('span', { class: 'field__label', text: 'তোমার নাম' }), nameInput, nameErr),
       el('label', { class: 'field' }, el('span', { class: 'field__label', text: 'শিক্ষাপ্রতিষ্ঠান' }), instInput, instErr),
       el('button', {
         class: 'btn btn--primary', type: 'button', text: 'শুরু করো',
@@ -133,6 +163,7 @@ export function renderApp(root, state, handlers) {
   root.textContent = '';
   const render = SCREENS[state.screen];
   root.append(
+    orbs(),
     el('div', { class: 'wrap' }, topbar(state), render ? render(state, handlers) : el('p', { text: '...' })),
   );
 }
@@ -254,7 +285,7 @@ registerScreen('syllabus', (state, h) => {
     const body = el('div', { class: 'accordion__body', hidden: i !== 0 });
 
     for (const paper of s.papers) {
-      if (paper.name) body.append(el('h3', { class: 'dock__meta', text: paper.name }));
+      if (paper.name) body.append(el('h3', { class: 'paper-label', text: paper.name }));
       for (const c of paper.chapters) {
         body.append(el('label', { class: 'check' },
           el('input', {
@@ -273,7 +304,8 @@ registerScreen('syllabus', (state, h) => {
       class: 'accordion__head', type: 'button', 'aria-expanded': i === 0 ? 'true' : 'false',
     },
       el('span', { style: 'flex:1' }, s.name),
-      el('span', { class: 'dock__meta', text: `${row.completed}/${row.total}` }));
+      el('span', { class: 'accordion__count', text: `${row.completed}/${row.total}` }),
+      el('span', { class: 'accordion__chev', 'aria-hidden': 'true' }));
     head.addEventListener('click', () => {
       body.hidden = !body.hidden;
       head.setAttribute('aria-expanded', body.hidden ? 'false' : 'true');

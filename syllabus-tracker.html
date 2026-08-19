@@ -11,276 +11,613 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+Da+2:wght@500;600;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>:root {
+<style>/* Design tokens.
+ *
+ * The two brands are a light theme and a dark theme, not one theme with a
+ * swapped accent. Every core colour is sampled from the client's own logo
+ * artwork, because the logos ship as opaque JPEGs and the page background
+ * exists to match them. Do not retune --bg/--surface/--logo-bg casually.
+ *
+ * Depth tokens (--grad-*, --glow, --ring-*) are derived FROM those sampled
+ * hues, so richer visuals never drift away from the brand.
+ */
+
+:root {
   --font-display: 'Baloo Da 2', system-ui, sans-serif;
   --font-body: 'Hind Siliguri', system-ui, sans-serif;
 
-  --ink: #101820;
-  --ink-soft: #5a6b7d;
-  --line: #dfe6ee;
-  --bg: #f7fafd;
+  /* Neutral pre-brand state, shown on the landing screen. */
+  --ink: #0d1b2a;
+  --ink-soft: #55657a;
+  --ink-faint: #8c9bb0;
+  --line: #e2e9f2;
+  --bg: #f4f8fd;
+  --bg-deep: #e8f0fa;
   --surface: #ffffff;
+  --surface-2: #fbfdff;
 
   --accent: #0a6cf0;
   --accent-ink: #ffffff;
   --accent-soft: #e7f0fe;
-  --secondary: #f5a81c;
+  --accent-2: #f5a81c;
   --logo-bg: #ffffff;
 
-  --bad: #d6453d;
+  --grad-hero: radial-gradient(120% 90% at 15% 0%, #dbe9ff 0%, transparent 60%),
+               radial-gradient(100% 80% at 95% 10%, #ffeccb 0%, transparent 55%);
+  --glow: 0 0 0 1px rgba(10, 108, 240, .08), 0 18px 40px -12px rgba(10, 60, 140, .22);
+  --glow-accent: 0 10px 30px -8px rgba(10, 108, 240, .55);
+  --shadow: 0 1px 2px rgba(16, 32, 56, .04), 0 12px 32px -10px rgba(16, 32, 56, .16);
+  --shadow-lg: 0 2px 4px rgba(16, 32, 56, .05), 0 28px 60px -18px rgba(16, 32, 56, .28);
 
-  --r-sm: 10px;
-  --r-md: 16px;
-  --r-lg: 24px;
-  --shadow: 0 10px 30px rgba(16, 24, 32, 0.08);
+  --bad: #d6453d;
+  --ok: #1c9d63;
+
+  --r-sm: 12px;
+  --r-md: 18px;
+  --r-lg: 26px;
+  --r-xl: 34px;
   --tap: 44px;
+
+  --sp-1: 4px;  --sp-2: 8px;  --sp-3: 12px; --sp-4: 16px;
+  --sp-5: 24px; --sp-6: 32px; --sp-7: 48px; --sp-8: 64px;
+
+  --ease: cubic-bezier(.22, 1, .36, 1);
 }
 
 /* Infinity School — logo is blue/amber on white, so the page is light. */
 body[data-brand='ssc'] {
   --ink: #0d1b2a;
-  --ink-soft: #5a6b7d;
-  --line: #dbe6f2;
-  --bg: #f7fafd;
+  --ink-soft: #55657a;
+  --ink-faint: #6b7c92;
+  --line: #dbe6f4;
+  --bg: #f4f8fd;
+  --bg-deep: #e6f0fb;
   --surface: #ffffff;
+  --surface-2: #fbfdff;
   --accent: #0a6cf0;
   --accent-ink: #ffffff;
   --accent-soft: #e7f0fe;
-  --secondary: #f5a81c;
+  --accent-2: #f5a81c;
   --logo-bg: #ffffff;
-  --shadow: 0 10px 30px rgba(10, 60, 140, 0.10);
+  --grad-hero: radial-gradient(120% 90% at 12% 0%, #d5e6ff 0%, transparent 62%),
+               radial-gradient(100% 80% at 96% 8%, #ffe9c2 0%, transparent 55%);
+  --glow: 0 0 0 1px rgba(10, 108, 240, .08), 0 18px 40px -12px rgba(10, 60, 140, .22);
+  --glow-accent: 0 10px 30px -8px rgba(10, 108, 240, .5);
+  --shadow: 0 1px 2px rgba(16, 32, 56, .04), 0 12px 32px -10px rgba(16, 32, 56, .16);
+  --shadow-lg: 0 2px 4px rgba(16, 32, 56, .05), 0 28px 60px -18px rgba(16, 32, 56, .26);
+  color-scheme: light;
 }
 
 /* Hulkenstein — logo is green/white on black, so the page is dark. */
 body[data-brand='hsc'] {
   --ink: #f2f5f3;
-  --ink-soft: #9aa8a0;
-  --line: #232a26;
+  --ink-soft: #9db0a5;
+  --ink-faint: #8aa093;
+  --line: #232c26;
   --bg: #07090a;
-  --surface: #12161a;
+  --bg-deep: #040605;
+  --surface: #12181a;
+  --surface-2: #171f21;
   --accent: #22a94c;
   --accent-ink: #04140a;
-  --accent-soft: #122a1a;
-  --secondary: #ffffff;
+  --accent-soft: #12291b;
+  --accent-2: #7bed9f;
   --logo-bg: #000000;
-  --shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  --grad-hero: radial-gradient(120% 90% at 12% 0%, #12301d 0%, transparent 62%),
+               radial-gradient(100% 80% at 96% 8%, #0d2416 0%, transparent 55%);
+  --glow: 0 0 0 1px rgba(34, 169, 76, .16), 0 18px 40px -12px rgba(0, 0, 0, .7);
+  --glow-accent: 0 10px 34px -8px rgba(34, 169, 76, .55);
+  --shadow: 0 1px 2px rgba(0, 0, 0, .5), 0 12px 32px -10px rgba(0, 0, 0, .6);
+  --shadow-lg: 0 2px 4px rgba(0, 0, 0, .5), 0 28px 60px -18px rgba(0, 0, 0, .75);
+  color-scheme: dark;
 }
-
-/* Themes differ in luminance, so form controls must be told which way to render
-   or the browser paints a light-mode checkbox on the dark HSC page. */
-body[data-brand='hsc'] { color-scheme: dark; }
-body[data-brand='ssc'] { color-scheme: light; }
 
 *, *::before, *::after { box-sizing: border-box; }
 
 body {
   margin: 0;
   background: var(--bg);
+  background-image: var(--grad-hero);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
   color: var(--ink);
   font-family: var(--font-body);
   font-size: 16px;
-  line-height: 1.6;
+  line-height: 1.65;
   -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
 
-h1, h2, h3 { font-family: var(--font-display); margin: 0; line-height: 1.25; }
-button, input { font-family: inherit; font-size: inherit; }
+/* NOTE: do NOT transition background-color/color on <body>.
+ * The theme switches by toggling data-brand at runtime, which changes the
+ * custom properties those longhands resolve from. Chromium does not restart
+ * a running transition when its var() source changes, so the transition
+ * sticks and the page keeps the previous theme's background while every
+ * child (which has no transition) correctly repaints — the exact symptom
+ * that shipped and was caught in review. Theme swaps are instant by design. */
+
+h1, h2, h3 { font-family: var(--font-display); margin: 0; line-height: 1.18; letter-spacing: -.01em; }
+button, input { font-family: inherit; font-size: inherit; color: inherit; }
 button { cursor: pointer; }
 
-:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
   }
 }
+
+/* Components. Every interactive element clears the 44px tap floor. */
 
 .card {
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: var(--r-md);
+  border-radius: var(--r-lg);
   box-shadow: var(--shadow);
 }
 
+/* ---------- buttons ---------- */
+
 .btn {
-  min-height: var(--tap);
-  padding: 0 22px;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 54px;
+  padding: 0 26px;
   border: 0;
   border-radius: 999px;
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: 1.05rem;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  font-size: 1.1rem;
+  letter-spacing: .01em;
+  transition: transform .18s var(--ease), box-shadow .25s var(--ease), background .2s var(--ease);
 }
-.btn:active { transform: translateY(1px); }
-.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn:active { transform: translateY(2px) scale(.99); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
 
-.btn--primary { background: var(--accent); color: var(--accent-ink); }
-.btn--ghost { background: transparent; color: var(--ink-soft); border: 1px solid var(--line); }
+.btn--primary {
+  background: var(--accent);
+  color: var(--accent-ink);
+  box-shadow: var(--glow-accent);
+}
+.btn--primary:hover { transform: translateY(-2px); }
 
-/* Big tappable option tiles used for class, batch and group selection. */
+.btn--ghost {
+  background: transparent;
+  color: var(--ink-soft);
+  border: 1.5px solid var(--line);
+  box-shadow: none;
+  font-size: 1rem;
+}
+.btn--ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ---------- choice tiles ---------- */
+
 .choice {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  min-height: 72px;
+  padding: 18px 22px;
+  background: var(--surface);
+  border: 1.5px solid var(--line);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow);
+  text-align: start;
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  color: var(--ink);
+  overflow: hidden;
+  transition: transform .2s var(--ease), border-color .2s var(--ease),
+              box-shadow .25s var(--ease), background .2s var(--ease);
+}
+/* Accent rail that fills in on hover/selection. */
+.choice::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: 0;
+  inset-block: 0;
+  width: 5px;
+  background: var(--accent);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform .28s var(--ease);
+}
+.choice::after {
+  content: '';
+  margin-inline-start: auto;
+  width: 11px; height: 11px;
+  border-inline-end: 2.5px solid var(--ink-faint);
+  border-block-start: 2.5px solid var(--ink-faint);
+  transform: rotate(45deg);
+  transition: border-color .2s var(--ease), transform .2s var(--ease);
+}
+.choice:hover {
+  transform: translateY(-3px);
+  border-color: var(--accent);
+  box-shadow: var(--shadow-lg);
+}
+.choice:hover::before, .choice.is-selected::before { transform: scaleY(1); }
+.choice:hover::after { border-color: var(--accent); transform: rotate(45deg) translate(2px, -2px); }
+.choice.is-selected {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.choice.is-selected::after { border-color: var(--accent); }
+
+/* ---------- checkboxes ---------- */
+
+.check {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  min-height: var(--tap);
+  padding: 10px 12px;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  transition: background .18s var(--ease);
+}
+.check:hover { background: var(--accent-soft); }
+.check input {
+  flex: 0 0 auto;
+  width: 23px;
+  height: 23px;
+  margin: 3px 0 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+.check.is-locked { opacity: .72; cursor: default; }
+.check__label { flex: 1; line-height: 1.5; }
+
+@keyframes pop { 0% { transform: scale(1); } 45% { transform: scale(1.28); } 100% { transform: scale(1); } }
+.check input:checked { animation: pop .24s var(--ease); }
+
+/* ---------- accordion ---------- */
+
+.accordion {
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  transition: box-shadow .25s var(--ease), border-color .2s var(--ease);
+}
+.accordion:hover { border-color: color-mix(in srgb, var(--accent) 40%, var(--line)); }
+.accordion + .accordion { margin-top: 14px; }
+
+.accordion__head {
   display: flex;
   align-items: center;
   gap: 14px;
   width: 100%;
   min-height: 64px;
-  padding: 16px 20px;
-  background: var(--surface);
-  border: 2px solid var(--line);
-  border-radius: var(--r-md);
-  text-align: start;
-  font-family: var(--font-display);
-  font-size: 1.15rem;
-  transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
-}
-.choice:hover { border-color: var(--accent); transform: translateY(-2px); }
-.choice.is-selected { border-color: var(--accent); background: var(--accent-soft); }
-
-/* Chapter and subject checkboxes. The native input stays in the DOM for
-   accessibility and keyboard use; only its box is restyled. */
-.check {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  min-height: var(--tap);
-  padding: 8px 10px;
-  border-radius: var(--r-sm);
-  cursor: pointer;
-  transition: background 0.15s ease;
-}
-.check:hover { background: var(--accent-soft); }
-.check input {
-  flex: 0 0 auto;
-  width: 22px;
-  height: 22px;
-  margin: 4px 0 0;
-  accent-color: var(--accent);
-}
-.check.is-locked { opacity: 0.7; cursor: default; }
-.check__label { flex: 1; }
-
-@keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.25); } 100% { transform: scale(1); } }
-.check input:checked { animation: pop 0.22s ease; }
-
-.accordion { border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); overflow: hidden; }
-.accordion + .accordion { margin-top: 12px; }
-.accordion__head {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  min-height: 60px;
-  padding: 12px 16px;
+  padding: 14px 18px;
   background: none;
   border: 0;
   font-family: var(--font-display);
-  font-size: 1.05rem;
+  font-size: 1.12rem;
+  color: var(--ink);
   text-align: start;
 }
-.accordion__body { padding: 4px 12px 14px; }
+.accordion__count {
+  font-family: var(--font-body);
+  font-size: .9rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  white-space: nowrap;
+}
+.accordion__chev {
+  width: 9px; height: 9px;
+  border-inline-end: 2.5px solid var(--ink-faint);
+  border-block-end: 2.5px solid var(--ink-faint);
+  transform: rotate(45deg);
+  transition: transform .28s var(--ease);
+}
+.accordion__head[aria-expanded='true'] .accordion__chev { transform: rotate(-135deg); }
+.accordion__body { padding: 2px 12px 16px; }
 .accordion__body[hidden] { display: none; }
+.paper-label {
+  margin: 12px 0 4px;
+  padding-inline-start: 12px;
+  font-family: var(--font-display);
+  font-size: .82rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
 
-.bar { height: 8px; border-radius: 999px; background: var(--line); overflow: hidden; }
-.bar__fill { height: 100%; background: var(--accent); border-radius: 999px; transition: width 0.4s ease; }
+/* ---------- bars and ring ---------- */
 
-/* Progress ring. stroke-dashoffset is set from JS; circumference is 2πr with r=52. */
-.ring { display: block; transform: rotate(-90deg); }
-.ring__track { fill: none; stroke: var(--line); stroke-width: 12; }
+.bar { height: 7px; border-radius: 999px; background: var(--line); overflow: hidden; }
+.bar__fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  transition: width .55s var(--ease);
+}
+
+.ring { display: block; transform: rotate(-90deg); overflow: visible; }
+.ring__track { fill: none; stroke: var(--line); stroke-width: 11; }
 .ring__fill {
   fill: none;
   stroke: var(--accent);
-  stroke-width: 12;
+  stroke-width: 11;
   stroke-linecap: round;
   stroke-dasharray: 326.7;
-  transition: stroke-dashoffset 0.5s ease;
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--accent) 55%, transparent));
+  transition: stroke-dashoffset .7s var(--ease);
 }
 
-.field { display: block; margin-bottom: 18px; }
-.field__label { display: block; margin-bottom: 6px; font-weight: 600; }
+/* ---------- fields ---------- */
+
+.field { display: block; margin-bottom: 20px; }
+.field__label {
+  display: block;
+  margin-bottom: 8px;
+  font-family: var(--font-display);
+  font-size: .95rem;
+  color: var(--ink-soft);
+}
 .field__input {
   width: 100%;
-  min-height: var(--tap);
-  padding: 10px 14px;
-  border: 2px solid var(--line);
+  min-height: 54px;
+  padding: 12px 18px;
+  border: 1.5px solid var(--line);
   border-radius: var(--r-sm);
   background: var(--surface);
   color: var(--ink);
+  transition: border-color .2s var(--ease), box-shadow .2s var(--ease);
 }
-.field__input:focus { border-color: var(--accent); outline: none; }
-.field__error { display: block; margin-top: 6px; color: var(--bad); font-size: 0.9rem; min-height: 1.2em; }
-.field--invalid .field__input { border-color: var(--bad); }
+.field__input::placeholder { color: var(--ink-faint); }
+.field__input:focus {
+  border-color: var(--accent);
+  outline: none;
+  box-shadow: 0 0 0 4px var(--accent-soft);
+}
+.field__error {
+  display: block;
+  margin-top: 7px;
+  color: var(--bad);
+  font-size: .9rem;
+  min-height: 1.2em;
+}
 
-.wrap { width: min(720px, 100% - 32px); margin-inline: auto; padding-block: 24px 96px; }
+/* ---------- misc ---------- */
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 16px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-family: var(--font-display);
+  font-size: .88rem;
+  letter-spacing: .04em;
+}
+body[data-brand='hsc'] .pill { color: var(--accent-2); }
+
+.divider {
+  height: 1px;
+  border: 0;
+  margin: var(--sp-5) 0;
+  background: linear-gradient(90deg, transparent, var(--line), transparent);
+}
+
+/* Screen layout, hero treatment and motion. */
+
+.wrap {
+  position: relative;
+  width: min(680px, 100% - 32px);
+  margin-inline: auto;
+  padding-block: 18px 110px;
+  z-index: 1;
+}
+
+/* Decorative orbs behind the content. Purely presentational, aria-hidden. */
+.orbs { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: .5;
+}
+.orb--1 { width: 320px; height: 320px; top: -90px; inset-inline-start: -80px; background: var(--accent); opacity: .16; }
+.orb--2 { width: 260px; height: 260px; top: 32%; inset-inline-end: -110px; background: var(--accent-2); opacity: .13; }
+.orb--3 { width: 300px; height: 300px; bottom: -120px; inset-inline-start: 20%; background: var(--accent); opacity: .1; }
 
 .screen { display: none; }
-.screen.is-active { display: block; animation: rise 0.35s ease both; }
-@keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+.screen.is-active { display: block; animation: rise .45s var(--ease) both; }
+@keyframes rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
 
-/* Cards reveal in sequence rather than all at once. Capped at 8 so a long
-   subject list does not leave the last card waiting a full second. */
-.stagger > * { animation: rise 0.4s ease both; }
-.stagger > *:nth-child(1) { animation-delay: 0.03s; }
-.stagger > *:nth-child(2) { animation-delay: 0.06s; }
-.stagger > *:nth-child(3) { animation-delay: 0.09s; }
-.stagger > *:nth-child(4) { animation-delay: 0.12s; }
-.stagger > *:nth-child(5) { animation-delay: 0.15s; }
-.stagger > *:nth-child(6) { animation-delay: 0.18s; }
-.stagger > *:nth-child(7) { animation-delay: 0.21s; }
-.stagger > *:nth-child(n + 8) { animation-delay: 0.24s; }
+.stagger > * { animation: rise .5s var(--ease) both; }
+.stagger > *:nth-child(1) { animation-delay: .04s; }
+.stagger > *:nth-child(2) { animation-delay: .09s; }
+.stagger > *:nth-child(3) { animation-delay: .14s; }
+.stagger > *:nth-child(4) { animation-delay: .19s; }
+.stagger > *:nth-child(5) { animation-delay: .24s; }
+.stagger > *:nth-child(6) { animation-delay: .29s; }
+.stagger > *:nth-child(7) { animation-delay: .34s; }
+.stagger > *:nth-child(n + 8) { animation-delay: .38s; }
 
-.topbar { display: flex; align-items: center; gap: 12px; padding: 14px 0; }
-.topbar__title { font-family: var(--font-display); font-size: 1.05rem; }
+/* ---------- top bar ---------- */
 
-/* The supplied logos are opaque JPEGs, not transparent PNGs. Each theme's page
-   background matches its logo's background, so normally the chip is invisible.
-   It exists so that a logo supplied later with a different background still
-   reads as a deliberate badge rather than a stray rectangle. */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 0 10px;
+}
+.topbar__title {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  color: var(--ink-soft);
+  line-height: 1.3;
+}
+/* Logos ship as opaque JPEGs, so each sits on a chip filled with its own
+   background colour. On the matching theme the chip is invisible. */
 .topbar__chip {
   display: inline-flex;
   align-items: center;
-  padding: 5px 9px;
+  padding: 6px 10px;
   background: var(--logo-bg);
   border-radius: var(--r-sm);
+  border: 1px solid var(--line);
   line-height: 0;
+  flex: 0 0 auto;
 }
-.topbar__logo { height: 34px; width: auto; }
+.topbar__logo { height: 34px; width: auto; display: block; }
 
-.hero__title { font-size: clamp(1.7rem, 6vw, 2.6rem); }
-.hero__sub { color: var(--ink-soft); margin-top: 10px; }
+/* ---------- hero ---------- */
 
-.stack { display: grid; gap: 12px; margin-top: 24px; }
+.hero { padding-block: var(--sp-4) var(--sp-5); }
+.hero__title {
+  font-size: clamp(2rem, 8.5vw, 3.1rem);
+  font-weight: 800;
+  margin-bottom: 14px;
+}
+.hero__title .hl {
+  background: linear-gradient(100deg, var(--accent), var(--accent-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.hero__sub {
+  color: var(--ink-soft);
+  font-size: 1.08rem;
+  max-width: 46ch;
+  margin: 0;
+}
 
-/* Sticky progress dock on the syllabus screen. */
+/* Both school logos, shown together before a level is chosen. */
+.brandpair {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: var(--sp-5);
+  flex-wrap: wrap;
+}
+.brandpair__item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 18px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  transition: transform .3s var(--ease), box-shadow .3s var(--ease);
+}
+.brandpair__item:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+.brandpair__item img { height: 52px; width: auto; display: block; }
+.brandpair__x {
+  font-family: var(--font-display);
+  color: var(--ink-faint);
+  font-size: 1.1rem;
+}
+
+.stack { display: grid; gap: 14px; margin-top: var(--sp-5); }
+
+.formcard {
+  padding: var(--sp-5);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  box-shadow: var(--glow);
+}
+
+/* ---------- progress dock ---------- */
+
 .dock {
   position: sticky;
-  top: 0;
+  top: 10px;
   z-index: 5;
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 12px;
-  margin-bottom: 16px;
-  background: color-mix(in srgb, var(--bg) 88%, transparent);
-  backdrop-filter: blur(8px);
+  gap: 18px;
+  padding: 16px 18px;
+  margin-bottom: var(--sp-5);
+  background: color-mix(in srgb, var(--surface) 82%, transparent);
+  backdrop-filter: blur(14px) saturate(1.4);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
   border: 1px solid var(--line);
-  border-radius: var(--r-md);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lg);
 }
-.dock__pct { font-family: var(--font-display); font-size: 1.8rem; line-height: 1; }
-.dock__meta { color: var(--ink-soft); font-size: 0.92rem; }
+.dock__pct {
+  font-family: var(--font-display);
+  font-size: 2.1rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--accent);
+}
+.dock__meta { color: var(--ink-soft); font-size: .93rem; }
 
-.enrol { margin-top: 28px; padding: 20px; border: 2px dashed var(--accent); border-radius: var(--r-md); background: var(--accent-soft); }
-.enrol__verdict { margin-top: 14px; font-family: var(--font-display); font-size: 1.1rem; }
+/* ---------- enrolment ---------- */
+
+.enrol {
+  position: relative;
+  margin-top: var(--sp-6);
+  padding: var(--sp-5);
+  border: 1.5px solid var(--accent);
+  border-radius: var(--r-lg);
+  background: var(--accent-soft);
+  box-shadow: var(--glow);
+}
+.enrol h3 { font-size: 1.22rem; margin-bottom: var(--sp-4); }
+.enrol .choice { background: var(--surface); }
+.enrol__verdict {
+  margin: var(--sp-4) 0 0;
+  padding: var(--sp-4);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  font-family: var(--font-display);
+  font-size: 1.12rem;
+  line-height: 1.45;
+  animation: rise .4s var(--ease) both;
+}
+
+/* ---------- result ---------- */
 
 .result { text-align: center; }
-.result__pct { font-family: var(--font-display); font-size: clamp(3.5rem, 18vw, 6rem); line-height: 1; color: var(--accent); }
-.result__img { width: min(320px, 80vw); height: auto; margin: 20px auto; border-radius: var(--r-md); box-shadow: var(--shadow); }
-.result__actions { display: grid; gap: 12px; margin-top: 20px; }
+.result__pct {
+  font-family: var(--font-display);
+  font-size: clamp(4rem, 22vw, 7rem);
+  font-weight: 800;
+  line-height: 1;
+  background: linear-gradient(100deg, var(--accent), var(--accent-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  margin-block: var(--sp-3);
+}
+.result__img {
+  width: min(300px, 78vw);
+  height: auto;
+  margin: var(--sp-5) auto;
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-lg);
+  display: block;
+}
+.result__actions { display: grid; gap: 12px; margin-top: var(--sp-5); }
 
 @media (min-width: 560px) {
-  .result__actions { grid-auto-flow: column; justify-content: center; }
+  .result__actions { grid-template-columns: 1fr 1fr; }
+  .result__actions > *:last-child { grid-column: 1 / -1; }
+  .brandpair__item img { height: 60px; }
 }
 </style>
 <!-- GA4 — replace G-XXXXXXXXXX and uncomment to enable
@@ -381,6 +718,10 @@ const CONFIG = {
     'batch28-tier4': 'images/results/batch28-tier4.png',
   },
   canvas: { width: 1080, height: 1920 },
+
+  // Shown instead of the tier image when a student reports exactly 100%.
+  // The client's joke response to a suspiciously perfect score.
+  perfectImage: 'images/results/perfect.png',
 };
 
 // PLACEHOLDER CONTENT — replaced with the client's real syllabus in Task 15.
@@ -869,8 +1210,7 @@ function fitText(ctx, text, maxWidth, startPx, font) {
     ctx.font = font(size);
   }
   return size;
-}
-async function renderResultImage({ name, institute, percent, tier, level }) {
+}async function renderResultImage({ name, institute, percent, tier, level }) {
   await ensureFonts();
 
   const { width, height } = CONFIG.canvas;
@@ -885,8 +1225,13 @@ async function renderResultImage({ name, institute, percent, tier, level }) {
   ctx.fillStyle = brand.canvasBg;
   ctx.fillRect(0, 0, width, height);
 
+  // A perfect score gets the client's joke image instead of the tier artwork.
+  const artSrc = percent >= 100 && CONFIG.perfectImage
+    ? CONFIG.perfectImage
+    : CONFIG.resultImages[tier.id];
+
   const [bg, logo] = await Promise.all([
-    loadImage(CONFIG.resultImages[tier.id]),
+    loadImage(artSrc),
     loadImage(brand.logo),
   ]);
 
@@ -941,8 +1286,7 @@ async function renderResultImage({ name, institute, percent, tier, level }) {
 
 function toBlob(canvas) {
   return new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
-}
-async function downloadCanvas(canvas, filename) {
+}async function downloadCanvas(canvas, filename) {
   const blob = await toBlob(canvas);
   if (!blob) return false;
   const url = URL.createObjectURL(blob);
@@ -956,8 +1300,7 @@ async function downloadCanvas(canvas, filename) {
   // iOS Safari ignores the download attribute entirely, so the caller always
   // shows the long-press instruction as well rather than trusting this.
   return true;
-}
-async function shareCanvas(canvas, filename) {
+}async function shareCanvas(canvas, filename) {
   const blob = await toBlob(canvas);
   if (!blob) return false;
   const file = new File([blob], filename, { type: 'image/png' });
@@ -999,6 +1342,30 @@ function topbar(state) {
   );
 }
 
+// Decorative background wash. Presentational only, so it is hidden from
+// assistive tech and never receives pointer events.
+function orbs() {
+  return el('div', { class: 'orbs', 'aria-hidden': 'true' },
+    el('span', { class: 'orb orb--1' }),
+    el('span', { class: 'orb orb--2' }),
+    el('span', { class: 'orb orb--3' }));
+}
+
+// Before a level is picked there is no single brand, so both schools are
+// shown. Each logo sits on a chip filled with its own background colour,
+// because the artwork is opaque JPEG rather than transparent PNG.
+function brandPair() {
+  const item = (key) => {
+    const b = CONFIG.brands[key];
+    return el('span', { class: 'brandpair__item', style: `background:${b.logoBg}` },
+      el('img', { src: b.logo, alt: b.name }));
+  };
+  return el('div', { class: 'brandpair' },
+    item('ssc'),
+    el('span', { class: 'brandpair__x', 'aria-hidden': 'true', text: '✕' }),
+    item('hsc'));
+}
+
 function screenLanding(state, h) {
   const nameErr = el('span', { class: 'field__error' });
   const instErr = el('span', { class: 'field__error' });
@@ -1016,10 +1383,16 @@ function screenLanding(state, h) {
 
   return el(
     'section', { class: 'screen is-active' },
-    el('h1', { class: 'hero__title', text: 'তোর সিলেবাস শেষ হইসে ট্র্যাকার' }),
-    el('p', { class: 'hero__sub', text: 'চ্যাপ্টারগুলো টিক দাও, দেখো তোমার সিলেবাসের কতটুকু শেষ।' }),
-    el('div', { class: 'stack stagger' },
-      el('label', { class: 'field' }, el('span', { class: 'field__label', text: 'নাম' }), nameInput, nameErr),
+    brandPair(),
+    el('div', { class: 'hero stagger' },
+      el('span', { class: 'pill', text: 'SSC ও HSC ২৭ / ২৮' }),
+      el('h1', { class: 'hero__title' },
+        'তোর সিলেবাস ',
+        el('span', { class: 'hl', text: 'শেষ হইসে' }),
+        ' ট্র্যাকার'),
+      el('p', { class: 'hero__sub', text: 'চ্যাপ্টারগুলো টিক দাও, এক মিনিটেই দেখো তোমার সিলেবাসের কতটুকু শেষ।' })),
+    el('div', { class: 'formcard stagger' },
+      el('label', { class: 'field' }, el('span', { class: 'field__label', text: 'তোমার নাম' }), nameInput, nameErr),
       el('label', { class: 'field' }, el('span', { class: 'field__label', text: 'শিক্ষাপ্রতিষ্ঠান' }), instInput, instErr),
       el('button', {
         class: 'btn btn--primary', type: 'button', text: 'শুরু করো',
@@ -1098,6 +1471,7 @@ function renderApp(root, state, handlers) {
   root.textContent = '';
   const render = SCREENS[state.screen];
   root.append(
+    orbs(),
     el('div', { class: 'wrap' }, topbar(state), render ? render(state, handlers) : el('p', { text: '...' })),
   );
 }
@@ -1215,7 +1589,7 @@ registerScreen('syllabus', (state, h) => {
     const body = el('div', { class: 'accordion__body', hidden: i !== 0 });
 
     for (const paper of s.papers) {
-      if (paper.name) body.append(el('h3', { class: 'dock__meta', text: paper.name }));
+      if (paper.name) body.append(el('h3', { class: 'paper-label', text: paper.name }));
       for (const c of paper.chapters) {
         body.append(el('label', { class: 'check' },
           el('input', {
@@ -1234,7 +1608,8 @@ registerScreen('syllabus', (state, h) => {
       class: 'accordion__head', type: 'button', 'aria-expanded': i === 0 ? 'true' : 'false',
     },
       el('span', { style: 'flex:1' }, s.name),
-      el('span', { class: 'dock__meta', text: `${row.completed}/${row.total}` }));
+      el('span', { class: 'accordion__count', text: `${row.completed}/${row.total}` }),
+      el('span', { class: 'accordion__chev', 'aria-hidden': 'true' }));
     head.addEventListener('click', () => {
       body.hidden = !body.hidden;
       head.setAttribute('aria-expanded', body.hidden ? 'false' : 'true');
