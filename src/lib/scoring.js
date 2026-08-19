@@ -1,5 +1,14 @@
 import { CONFIG } from '../data/config.js';
 
+// The result screen shows a rating out of 10 instead of the raw percentage
+// (client decision 2026-08-20) -- tier/image/caption selection still runs on
+// the raw percent (unaffected), this only changes how the score is displayed,
+// in both the on-screen counter (ui.js) and the exported/shared image
+// (canvas.js), so the two can never show different numbers for the same result.
+export function toRating(percent) {
+  return Math.max(0, Math.min(10, Math.round(percent / 10)));
+}
+
 export function resolveTier(percent, batch) {
   const bands = CONFIG.tiers[batch];
   if (!bands) throw new RangeError(`Unknown batch: ${batch}`);

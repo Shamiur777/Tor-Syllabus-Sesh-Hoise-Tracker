@@ -1,7 +1,18 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { resolveTier } from '../src/lib/scoring.js';
+import { resolveTier, toRating } from '../src/lib/scoring.js';
 import { CONFIG } from '../src/data/config.js';
+
+test('rating out of 10 rounds and clamps the raw percentage', () => {
+  assert.equal(toRating(0), 0);
+  assert.equal(toRating(4), 0);
+  assert.equal(toRating(5), 1); // rounds half up
+  assert.equal(toRating(73), 7);
+  assert.equal(toRating(95), 10); // rounds up, not "9.5/10"
+  assert.equal(toRating(100), 10);
+  assert.equal(toRating(-5), 0); // defensive clamp, mirrors resolveTier's own
+  assert.equal(toRating(140), 10);
+});
 
 test("batch 27 bands split at 30, 50 and 70", () => {
   assert.equal(resolveTier(0, '27').index, 0);

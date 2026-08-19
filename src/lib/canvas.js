@@ -1,4 +1,5 @@
 import { CONFIG } from '../data/config.js';
+import { toRating } from './scoring.js';
 
 function loadImage(src) {
   return new Promise((resolve) => {
@@ -115,9 +116,11 @@ export async function renderResultImage({ name, institute, percent, tier, level 
   ctx.fillStyle = brand.canvasInkSoft;
   ctx.fillText(institute, width / 2, 400);
 
+  // Rating out of 10, not the raw percentage (client decision 2026-08-20) --
+  // must match ui.js's on-screen number exactly, via the same toRating().
   ctx.fillStyle = brand.accent;
   ctx.font = '800 220px "Baloo Da 2", sans-serif';
-  ctx.fillText(`${percent}%`, width / 2, 620);
+  ctx.fillText(`${toRating(percent)}/10`, width / 2, 620);
 
   ctx.fillStyle = brand.canvasInkSoft;
   ctx.font = '600 42px "Hind Siliguri", sans-serif';

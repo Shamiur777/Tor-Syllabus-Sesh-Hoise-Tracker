@@ -270,7 +270,7 @@ registerScreen('subjects', (state, h) => {
   );
 });
 
-import { computeCompletion, computeSubjectBreakdown, resolveTier } from './scoring.js';
+import { computeCompletion, computeSubjectBreakdown, resolveTier, toRating } from './scoring.js';
 
 const RING_CIRCUMFERENCE = 326.7; // 2πr, r = 52
 
@@ -443,7 +443,7 @@ registerScreen('result', (state, h) => {
   const { percent, completed, total } = computeCompletion(subjects, new Set(state.checked));
   const tier = resolveTier(percent, state.batch);
 
-  const pct = el('div', { class: 'result__pct', text: '0%' });
+  const pct = el('div', { class: 'result__pct', text: '0/10' });
   const preview = el('img', { class: 'result__img', alt: 'তোমার রেজাল্ট' });
   const hint = el('p', { class: 'dock__meta' });
   const filename = `syllabus-${state.name.replace(/\s+/g, '-')}-${percent}pc.png`;
@@ -460,11 +460,16 @@ registerScreen('result', (state, h) => {
   });
 
   // Count up rather than snapping, so the number reads as an achievement.
+  // Shown as a rating out of 10, not the raw percentage (client decision
+  // 2026-08-20) -- tier/image/caption selection below still runs on percent,
+  // unaffected; only this on-screen number (and canvas.js's copy of it, on
+  // the exported/shared image) changed. A 0-10 range only needs +1 per tick.
+  const rating = toRating(percent);
   let shown = 0;
   const tick = setInterval(() => {
-    shown += Math.max(1, Math.ceil(percent / 30));
-    if (shown >= percent) { shown = percent; clearInterval(tick); }
-    pct.textContent = `${shown}%`;
+    shown += 1;
+    if (shown >= rating) { shown = rating; clearInterval(tick); }
+    pct.textContent = `${shown}/10`;
   }, 28);
 
   let canvas = null;
