@@ -86,7 +86,7 @@ These all look like mistakes and are not. Do not "fix" them without reading why.
 |---|---|---|---|
 | HSC Science | 7 | 115 | **Real** — client file |
 | SSC Science | 9 | 193 | **Real** — client textbook contents |
-| SSC Commerce | 8 | 169 | **Real** — client PDF + textbook contents; বিজ্ঞান flagged |
+| SSC Commerce | 8 | 173 | **Real** — client PDF + textbook contents, corrected 2026-08-20 |
 | HSC Business Studies | 7 | 127 | **Real** — client's full final syllabus, pasted in chat 2026-08-20 |
 | HSC Humanities | 13 | 149 | **Real compulsory** (shared with Science/Business) + **researched** electives — 8 high-confidence, Sociology flagged, Social Work placeholder |
 
@@ -95,8 +95,14 @@ students. There is no SSC Arts row above because the group no longer exists.
 
 Subjects whose name ends ` [যাচাই করতে হবে]` were transcribed from medium-confidence
 sources and are visibly flagged in the UI so a teacher can spot them. SSC Commerce
-বিজ্ঞান carries the same flag for a different reason: the client PDF itemises only
-nine of the book's chapters (see below).
+বিজ্ঞান carried the same flag for a different reason (the client PDF itemised only
+nine of the book's chapters) until 2026-08-20, when a reviewer (Baha uddin, in
+chat) checked against the real book and named the missing chapters directly —
+এসো বলকে জানি and প্রাত্যহিক জীবনে তড়িৎ, 9 -> 11. Flag removed; this is now a
+confirmed correction, not unverified research. The same message added
+হিসাববিজ্ঞান's 12th chapter (পারিবারিক ও আত্মকর্মসংস্থানমূলক উদ্যোগের হিসাব, 11 -> 12)
+and ফিন্যান্স ও ব্যাংকিং's 13th (কেন্দ্রীয় ব্যাংক, 12 -> 13). All three were pure
+appends — existing chapter ids were untouched, so no SCHEMA_VERSION bump.
 
 **Still placeholder (deliberately — research confidence was low or the source was
 unreadable):** HSC সমাজকর্ম (Social Work). Everything else formerly on this list
