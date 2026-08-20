@@ -37,15 +37,21 @@
 //   SSC Commerce Science carries the same flag for a different reason — see
 //   the SSC Commerce note above.
 //
+// HSC Business — accounting/management/finance/marketing all replaced
+//                2026-08-20 with the client's full final syllabus, pasted
+//                directly in chat (not a file). This closed two former
+//                placeholders (management, finance) and corrected two
+//                subjects that had been transcribed from partial/uncertain
+//                research (accounting had "(আংশিক)"-marked partial chapters;
+//                marketing was missing more than half the book). Chapter
+//                ids were renumbered for all four subjects, so
+//                SCHEMA_VERSION bumped 4 -> 5.
+//
 // STILL PLACEHOLDER, pending research/client confirmation (research
 // confidence was low/low-medium/unverified, so nothing was transcribed):
-//   SSC Arts Geography and Environment, HSC Business Organisation and
-//   Management, HSC Finance/Banking/Insurance, HSC Social Work, and the
-//   and the compulsory Bangla/English for HSC Business and HSC Humanities
-//   (the 2023 and 2026 official versions disagree on prose, poems and units
-//   entirely, so this needs a client decision per exam year, not a merge).
-//   Those keep structurally-correct sample chapters so the app runs; they
-//   must be replaced before launch or their percentages are meaningless.
+//   HSC Social Work. It keeps a structurally-correct sample chapter so the
+//   app runs; it must be replaced before launch or its percentage is
+//   meaningless.
 //
 // EDITING
 //   To add a chapter: append to the relevant paper's `chapters` array with a
@@ -656,52 +662,129 @@ function hscScience(batch) {
 
 function hscBusiness(batch) {
   const p = `hsc${batch}`;
-  const twoPaper = (id, label) => ({
-    name: label, compulsory: false, defaultSelected: true,
-    papers: [
-      { name: '১ম পত্র', chapters: ch(`${p}-${id}-1`, TODO) },
-      { name: '২য় পত্র', chapters: ch(`${p}-${id}-2`, TODO) },
-    ],
-  });
   return {
     ...hscCompulsory(p),
     accounting: {
       name: 'হিসাববিজ্ঞান (Accounting)', compulsory: false, defaultSelected: true,
       papers: [
         { name: '১ম পত্র', chapters: ch(`${p}-acc-1`, [
-          'হিসাববিজ্ঞান পরিচিতি (আংশিক)',
-          'হিসাবের বইসমূহ (আংশিক)',
+          'হিসাববিজ্ঞান পরিচিতি',
+          'হিসাবের বইসমূহ',
           'ব্যাংক সমন্বয় বিবরণী',
-          'রেওয়ামিল (আংশিক)',
+          'রেওয়ামিল',
+          'হিসাববিজ্ঞানের নীতিমালা',
+          'প্রাপ্য হিসাবসমূহের হিসাবরক্ষণ',
           'কার্যপত্র',
-          'দৃশ্যমান সম্পদের হিসাবরক্ষণ (আংশিক)',
+          'দৃশ্যমান ও অদৃশ্যমান সম্পদের হিসাবরক্ষণ',
           'আর্থিক বিবরণী',
+          'একতরফা দাখিলা পদ্ধতি',
         ]) },
         { name: '২য় পত্র', chapters: ch(`${p}-acc-2`, [
+          'অব্যবসায়ী প্রতিষ্ঠানের হিসাব',
           'অংশীদারি ব্যবসায়ের হিসাব',
-          'যৌথমূলধনী কোম্পানির মূলধন (আংশিক)',
-          'যৌথমূলধনী কোম্পানির আর্থিক বিবরণী',
+          'নগদ প্রবাহ বিবরণী',
+          'যৌথ মূলধনী কোম্পানির মূলধন',
+          'কোম্পানির আর্থিক বিবরণী',
+          'অনুপাত বিশ্লেষণ',
           'উৎপাদন ব্যয় হিসাব',
-          'মজুদ পণ্যের হিসাবরক্ষণ পদ্ধতি',
+          'মজুদপণ্যের হিসাবরক্ষণ পদ্ধতি',
+          'ব্যয় ও ব্যয়ের শ্রেণিবিভাগ',
+          'ব্যবস্থাপনা হিসাববিজ্ঞান',
         ]) },
       ],
     },
-    management: twoPaper('mgmt', 'ব্যবসায় সংগঠন ও ব্যবস্থাপনা (Business Organisation and Management)'),
-    finance: twoPaper('fin', 'ফিন্যান্স, ব্যাংকিং ও বীমা (Finance, Banking and Insurance)'),
+    management: {
+      name: 'ব্যবসায় সংগঠন ও ব্যবস্থাপনা (Business Organisation and Management)',
+      compulsory: false, defaultSelected: true,
+      papers: [
+        { name: '১ম পত্র', chapters: ch(`${p}-mgmt-1`, [
+          'ব্যবসায়ের মৌলিক ধারণা',
+          'ব্যবসায় পরিবেশ',
+          'একমালিকানা ব্যবসায়',
+          'অংশীদারি ব্যবসায়',
+          'যৌথমূলধনী ব্যবসায়',
+          'সমবায় সমিতি',
+          'রাষ্ট্রীয় ব্যবসায়',
+          'ব্যবসায়ের আইনগত দিক',
+          'ব্যবসায়ের সহায়ক সেবা',
+          'ব্যবসায় উদ্যোগ',
+          'ব্যবসায়ে তথ্য ও যোগাযোগ প্রযুক্তির ব্যবহার',
+          'ব্যবসায়ের নৈতিকতা ও সামাজিক দায়বদ্ধতা',
+        ]) },
+        { name: '২য় পত্র', chapters: ch(`${p}-mgmt-2`, [
+          'ব্যবস্থাপনার ধারণা',
+          'ব্যবস্থাপনা নীতি',
+          'পরিকল্পনা প্রণয়ন ও সিদ্ধান্ত গ্রহণ',
+          'সংগঠিতকরণ',
+          'কর্মীসংস্থান',
+          'নেতৃত্ব',
+          'প্রেষণা',
+          'যোগাযোগ',
+          'সমন্বয়সাধন',
+          'নিয়ন্ত্রন',
+        ]) },
+      ],
+    },
+    finance: {
+      name: 'ফিন্যান্স, ব্যাংকিং ও বীমা (Finance, Banking and Insurance)',
+      compulsory: false, defaultSelected: true,
+      papers: [
+        { name: '১ম পত্র', chapters: ch(`${p}-fin-1`, [
+          'অর্থায়নের সূচনা',
+          'আর্থিক বাজারের আইনগত দিকসমূহ',
+          'অর্থের সময় মূল্য',
+          'আর্থিক বিশ্লেষণ',
+          'স্বল্প ও মধ্যমেয়াদি অর্থায়ন',
+          'দীর্ঘমেয়াদি অর্থায়ন',
+          'মূলধন ব্যয়',
+          'মূলধন বাজেটিং ও বিনিয়োগ সিদ্ধান্ত',
+          'ঝুঁকি এবং মুনাফার হার',
+        ]) },
+        { name: '২য় পত্র', chapters: ch(`${p}-fin-2`, [
+          'ব্যাংক ব্যবস্থার প্রাথমিক ধারণা',
+          'কেন্দ্রীয় ব্যাংক',
+          'বাণিজ্যিক ব্যাংক',
+          'ব্যাংক হিসাব',
+          'হস্তান্তরযোগ্য ঋণের দলিল',
+          'চেক, বিল অব এক্সচেঞ্জ ও প্রমিসরি নোট',
+          'ব্যাংক তহবিলের উৎস ও ব্যবহার',
+          'বৈদেশিক বিনিময় ও বৈদেশিক মুদ্রা',
+          'ইলেকট্রনিক ও আধুনিক ব্যাংকিং',
+          'বিমা সম্পর্কে মৌলিক ধারণা',
+          'জীবন বিমা',
+          'নৌ বিমা',
+          'অগ্নিবিমা',
+          'বিবিধ বিমা',
+        ]) },
+      ],
+    },
     marketing: {
-      name: 'উৎপাদন ব্যবস্থাপনা ও বিপণন (Production Management and Marketing)', compulsory: false, defaultSelected: true,
+      name: 'উৎপাদন ব্যবস্থাপনা ও বিপণন (Production Management and Marketing)',
+      compulsory: false, defaultSelected: true,
       papers: [
         { name: '১ম পত্র', chapters: ch(`${p}-mkt-1`, [
           'উৎপাদন',
           'উৎপাদনের উপকরণ',
+          'উৎপাদনের মাত্রা',
+          'সামষ্টিক পর্যায়ের উৎপাদন',
+          'উৎপাদন ব্যবস্থাপনা',
           'পণ্য ডিজাইন',
+          'মান ব্যবস্থাপনা',
+          'উৎপাদন ক্ষমতা',
+          'ব্যবসায়ের অবস্থান',
+          'লে আউট',
         ]) },
         { name: '২য় পত্র', chapters: ch(`${p}-mkt-2`, [
           'বিপণন পরিচিতি',
+          'বাজারজাতকরণ পরিবেশ',
           'বিপণন কার্যাবলি',
           'বাজার বিভক্তিকরণ ও বিপণন মিশ্রণ',
           'পণ্য ও পণ্যের মূল্য নির্ধারণ',
+          'পণ্য বণ্টন প্রণালী',
+          'পাইকারি ও খুচরা ব্যবসায়',
           'বিক্রয় প্রসার ও বিজ্ঞাপন',
+          'ব্যক্তিক বিক্রয় ও বিক্রয়িকতা',
+          'বিপণনের সমসাময়িক বিষয়াবলি',
         ]) },
       ],
     },
