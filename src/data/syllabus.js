@@ -6,7 +6,12 @@
 //                  from the web on 2026-08-19 (see that file's note). Biology
 //                  2nd Paper was missing its closing chapter (প্রাণীর আচরণ);
 //                  added 2026-08-22 per client correction, appended after the
-//                  existing last chapter so no ids were renumbered.
+//                  existing last chapter so no ids were renumbered. Physics
+//                  2nd Paper's chapters 4 and 5 were corrected the same day
+//                  (তড়িৎ প্রবাহের চৌম্বক ক্রিয়া ও চুম্বকত্ব; তড়িৎচৌম্বকীয় আবেশ ও
+//                  দিক পরিবর্তী প্রবাহ — same topics, corrected names, ids
+//                  unchanged) and gained a new closing chapter (জ্যোতির্বিজ্ঞান),
+//                  again appended so no ids were renumbered.
 //   SSC Commerce — client-supplied `syllabus-source/SSC Commerce Syllabus.pdf`
 //                  (2027 SSC exam syllabus). Read from the rendered pages
 //                  because the PDF's text layer is corrupted. The four business
@@ -581,13 +586,14 @@ function hscScience(batch) {
           'তাপগতিবিদ্যা',
           'স্থির তড়িৎ',
           'চল তড়িৎ',
-          'স্থির তড়িতের চৌম্বক ক্রিয়া ও চুম্বকত্ব',
-          'তাড়িত চৌম্বক আবেশ ও পরিবর্তী প্রবাহ',
+          'তড়িৎ প্রবাহের চৌম্বক ক্রিয়া ও চুম্বকত্ব',
+          'তড়িৎচৌম্বকীয় আবেশ ও দিক পরিবর্তী প্রবাহ',
           'জ্যামিতিক আলোকবিজ্ঞান',
           'ভৌত আলোকবিজ্ঞান',
           'আধুনিক পদার্থবিজ্ঞানের সূচনা',
           'পরমাণুর মডেল ও নিউক্লিয়ার পদার্থবিজ্ঞান',
           'সেমিকন্ডাক্টর ও ইলেকট্রনিক্স',
+          'জ্যোতির্বিজ্ঞান',
         ]) },
       ],
     },

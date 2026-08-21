@@ -840,7 +840,12 @@ const CONFIG = {
 //                  from the web on 2026-08-19 (see that file's note). Biology
 //                  2nd Paper was missing its closing chapter (প্রাণীর আচরণ);
 //                  added 2026-08-22 per client correction, appended after the
-//                  existing last chapter so no ids were renumbered.
+//                  existing last chapter so no ids were renumbered. Physics
+//                  2nd Paper's chapters 4 and 5 were corrected the same day
+//                  (তড়িৎ প্রবাহের চৌম্বক ক্রিয়া ও চুম্বকত্ব; তড়িৎচৌম্বকীয় আবেশ ও
+//                  দিক পরিবর্তী প্রবাহ — same topics, corrected names, ids
+//                  unchanged) and gained a new closing chapter (জ্যোতির্বিজ্ঞান),
+//                  again appended so no ids were renumbered.
 //   SSC Commerce — client-supplied `syllabus-source/SSC Commerce Syllabus.pdf`
 //                  (2027 SSC exam syllabus). Read from the rendered pages
 //                  because the PDF's text layer is corrupted. The four business
@@ -1415,13 +1420,14 @@ function hscScience(batch) {
           'তাপগতিবিদ্যা',
           'স্থির তড়িৎ',
           'চল তড়িৎ',
-          'স্থির তড়িতের চৌম্বক ক্রিয়া ও চুম্বকত্ব',
-          'তাড়িত চৌম্বক আবেশ ও পরিবর্তী প্রবাহ',
+          'তড়িৎ প্রবাহের চৌম্বক ক্রিয়া ও চুম্বকত্ব',
+          'তড়িৎচৌম্বকীয় আবেশ ও দিক পরিবর্তী প্রবাহ',
           'জ্যামিতিক আলোকবিজ্ঞান',
           'ভৌত আলোকবিজ্ঞান',
           'আধুনিক পদার্থবিজ্ঞানের সূচনা',
           'পরমাণুর মডেল ও নিউক্লিয়ার পদার্থবিজ্ঞান',
           'সেমিকন্ডাক্টর ও ইলেকট্রনিক্স',
+          'জ্যোতির্বিজ্ঞান',
         ]) },
       ],
     },
@@ -1921,12 +1927,10 @@ const buildBatch = (batch) => ({
 });
 
 const b27 = buildBatch('27');
-const b28 = buildBatch('28');
-const SYLLABUS = {
+const b28 = buildBatch('28');const SYLLABUS = {
   ssc: { 27: b27.ssc, 28: b28.ssc },
   hsc: { 27: b27.hsc, 28: b28.hsc },
-};
-const GROUP_LABELS = {
+};const GROUP_LABELS = {
   ssc: { science: 'বিজ্ঞান', commerce: 'ব্যবসায় শিক্ষা' },
   hsc: { science: 'বিজ্ঞান', business: 'ব্যবসায় শিক্ষা', humanities: 'মানবিক' },
 };
@@ -1936,8 +1940,7 @@ const GROUP_LABELS = {
 const GROUP_ORDER = {
   ssc: ['science', 'commerce'],
   hsc: ['science', 'business', 'humanities'],
-};
-function getGroups(level) {
+};function getGroups(level) {
   return GROUP_ORDER[level] ? [...GROUP_ORDER[level]] : [];
 }
 
@@ -1945,27 +1948,22 @@ function getGroups(level) {
 // HSC: Biology / Higher Math on the Science track), so both show the picker.
 // A group with zero optional subjects still renders correctly -- the screen
 // is just a list of locked, pre-checked compulsory subjects with nothing to
-// toggle -- so this does not need to vary per group.
-function needsSubjectPicker(level) {
+// toggle -- so this does not need to vary per group.function needsSubjectPicker(level) {
   return level === 'ssc' || level === 'hsc';
-}
-function getSubjects(level, batch, group) {
+}function getSubjects(level, batch, group) {
   const entry = SYLLABUS[level]?.[batch]?.[group];
   if (!entry) return [];
   return Object.entries(entry.subjects).map(([id, s]) => ({ id, ...s }));
-}
-function getDefaultSelectedIds(level, batch, group) {
+}function getDefaultSelectedIds(level, batch, group) {
   return getSubjects(level, batch, group)
     .filter((s) => s.compulsory || s.defaultSelected)
     .map((s) => s.id);
-}
-function countChapters(subjects) {
+}function countChapters(subjects) {
   return subjects.reduce(
     (total, s) => total + s.papers.reduce((n, p) => n + p.chapters.length, 0),
     0,
   );
-}
-function allChapterIds(subjects) {
+}function allChapterIds(subjects) {
   return subjects.flatMap((s) => s.papers.flatMap((p) => p.chapters.map((c) => c.id)));
 }
 
@@ -2035,22 +2033,17 @@ function resolveMostSpecific(map, level, batch, group) {
     if (value) return value;
   }
   return '';
-}
-function resolveEnrolUrl(level, batch, group) {
+}function resolveEnrolUrl(level, batch, group) {
   return resolveMostSpecific(CONFIG.enrolUrls, level, batch, group);
-}
-function resolveEnrolLabel(level, batch, group) {
+}function resolveEnrolLabel(level, batch, group) {
   return resolveMostSpecific(CONFIG.enrolLabels, level, batch, group);
 }
 
 
 // Bump when the shape of a stored state changes, or when chapter ids are renumbered.
-// A returning student with an older version is reset rather than mis-scored.
-const SCHEMA_VERSION = 6;
-const STORAGE_KEY = 'tor-syllabus-tracker-v1';
+// A returning student with an older version is reset rather than mis-scored.const SCHEMA_VERSION = 6;const STORAGE_KEY = 'tor-syllabus-tracker-v1';
 
-const FLOW = ['landing', 'class', 'batch', 'group', 'subjects', 'syllabus', 'lead', 'result'];
-function createState() {
+const FLOW = ['landing', 'class', 'batch', 'group', 'subjects', 'syllabus', 'lead', 'result'];function createState() {
   return {
     version: SCHEMA_VERSION,
     screen: 'landing',
@@ -2072,15 +2065,13 @@ function createState() {
     email: '',
     submitted: false,
   };
-}
-function toggleChapter(state, id) {
+}function toggleChapter(state, id) {
   const has = state.checked.includes(id);
   return {
     ...state,
     checked: has ? state.checked.filter((c) => c !== id) : [...state.checked, id],
   };
-}
-function setSubjects(state, ids, allSubjects) {
+}function setSubjects(state, ids, allSubjects) {
   const keptIds = new Set(ids);
   const liveChapters = new Set(
     allSubjects
@@ -2104,13 +2095,9 @@ function step(state, delta) {
   // Enrolled students are never asked for contact details.
   if (FLOW[next] === 'lead' && state.enrolled === true) next += delta;
   return FLOW[next] ?? null;
-}
-const nextScreen = (state) => step(state, 1);
-const prevScreen = (state) => step(state, -1);
-function serialize(state) {
+}const nextScreen = (state) => step(state, 1);const prevScreen = (state) => step(state, -1);function serialize(state) {
   return JSON.stringify(state);
-}
-function deserialize(raw) {
+}function deserialize(raw) {
   if (!raw) return null;
   try {
     const parsed = JSON.parse(raw);
@@ -2122,22 +2109,19 @@ function deserialize(raw) {
 }
 
 // Every storage call is guarded: Safari private mode and some in-app webviews
-// throw on setItem, and a thrown quota error must never take the page down.
-function save(state, storage) {
+// throw on setItem, and a thrown quota error must never take the page down.function save(state, storage) {
   try {
     storage.setItem(STORAGE_KEY, serialize(state));
   } catch {
     /* ignore */
   }
-}
-function load(storage) {
+}function load(storage) {
   try {
     return deserialize(storage.getItem(STORAGE_KEY));
   } catch {
     return null;
   }
-}
-function clear(storage) {
+}function clear(storage) {
   try {
     storage.removeItem(STORAGE_KEY);
   } catch {
@@ -2244,7 +2228,6 @@ function postViaForm(url, payload) {
     return false;
   }
 }
-
 
 
 function loadImage(src) {
@@ -2381,8 +2364,7 @@ function drawDecorativeBackground(ctx, width, height, brand) {
   ctx.globalAlpha = 0.22;
   ctx.fill(SPARKLE_PATH);
   ctx.restore();
-}
-async function renderResultImage({ name, institute, percent, tier, level }) {
+}async function renderResultImage({ name, institute, percent, tier, level }) {
   await ensureFonts();
 
   const { width, height } = CONFIG.canvas;
@@ -2479,8 +2461,7 @@ async function renderResultImage({ name, institute, percent, tier, level }) {
 
 function toBlob(canvas) {
   return new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
-}
-async function downloadCanvas(canvas, filename) {
+}async function downloadCanvas(canvas, filename) {
   const blob = await toBlob(canvas);
   if (!blob) return false;
   const url = URL.createObjectURL(blob);
@@ -2494,8 +2475,7 @@ async function downloadCanvas(canvas, filename) {
   // iOS Safari ignores the download attribute entirely, so the caller always
   // shows the long-press instruction as well rather than trusting this.
   return true;
-}
-async function shareCanvas(canvas, filename) {
+}async function shareCanvas(canvas, filename) {
   const blob = await toBlob(canvas);
   if (!blob) return false;
   const file = new File([blob], filename, { type: 'image/png' });
@@ -2705,11 +2685,9 @@ const SCREENS = {
     onPick: (v) => h.onPick('group', v),
     onBack: h.onBack,
   }),
-};
-function registerScreen(name, fn) {
+};function registerScreen(name, fn) {
   SCREENS[name] = fn;
-}
-function renderApp(root, state, handlers) {
+}function renderApp(root, state, handlers) {
   document.body.dataset.brand = state.level ?? '';
   root.textContent = '';
   const render = SCREENS[state.screen];
@@ -2718,7 +2696,6 @@ function renderApp(root, state, handlers) {
     el('div', { class: 'wrap' }, topbar(state), render ? render(state, handlers) : el('p', { text: '...' })),
   );
 }
-
 registerScreen('subjects', (state, h) => {
   const subjects = getSubjects(state.level, state.batch, state.group);
   // A student arriving fresh (selectedSubjects empty) sees the standard
@@ -2769,7 +2746,6 @@ registerScreen('subjects', (state, h) => {
     ),
   );
 });
-
 const RING_CIRCUMFERENCE = 326.7; // 2πr, r = 52
 
 function progressDock(percent, completed, total) {
@@ -2932,7 +2908,6 @@ registerScreen('lead', (state, h) => {
     ),
   );
 });
-
 registerScreen('result', (state, h) => {
   const all = getSubjects(state.level, state.batch, state.group);
   const subjects = all.filter((s) => state.selectedSubjects.includes(s.id));
