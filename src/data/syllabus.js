@@ -3,7 +3,10 @@
 // SOURCES
 //   HSC Science  — client-supplied `syllabus-source/HSC Syllabus.txt`.
 //                  Higher Math 2nd Paper was missing there and was sourced
-//                  from the web on 2026-08-19 (see that file's note).
+//                  from the web on 2026-08-19 (see that file's note). Biology
+//                  2nd Paper was missing its closing chapter (প্রাণীর আচরণ);
+//                  added 2026-08-22 per client correction, appended after the
+//                  existing last chapter so no ids were renumbered.
 //   SSC Commerce — client-supplied `syllabus-source/SSC Commerce Syllabus.pdf`
 //                  (2027 SSC exam syllabus). Read from the rendered pages
 //                  because the PDF's text layer is corrupted. The four business
@@ -47,11 +50,17 @@
 //                ids were renumbered for all four subjects, so
 //                SCHEMA_VERSION bumped 4 -> 5.
 //
-// STILL PLACEHOLDER, pending research/client confirmation (research
-// confidence was low/low-medium/unverified, so nothing was transcribed):
-//   HSC Social Work. It keeps a structurally-correct sample chapter so the
-//   app runs; it must be replaced before launch or its percentage is
-//   meaningless.
+// HSC Humanities — client-supplied `HSC Arts Group Subjects.docx`/`.pdf`
+//                (2026-08-22) filled in every chapter the earlier research
+//                transcription was missing across civics, economics, history,
+//                islamic_history, logic and sociology, closed the HSC Social
+//                Work placeholder with its full two-paper syllabus, and added
+//                a new agriculture (কৃষিশিক্ষা) subject the doc covers that
+//                had no prior entry. Statistics was dropped at the segment
+//                head's request — it is no longer offered to HSC Humanities
+//                students. Chapter ids were renumbered wherever a missing
+//                chapter was inserted before an existing one, so
+//                SCHEMA_VERSION bumped 5 -> 6.
 //
 // EDITING
 //   To add a chapter: append to the relevant paper's `chapters` array with a
@@ -61,7 +70,6 @@
 
 const ch = (prefix, names) => names.map((name, i) => ({ id: `${prefix}-${i + 1}`, name }));
 
-const TODO = ['PLACEHOLDER — বিষয়বস্তু নিশ্চিত করতে হবে'];
 
 /* ---------------------------------------------------------------- SSC ---- */
 
@@ -631,6 +639,7 @@ function hscScience(batch) {
           'মানব জীবনের ধারাবাহিকতা',
           'মানবদেহের প্রতিরক্ষা',
           'জিন তত্ত্ব ও বিবর্তন',
+          'প্রাণীর আচরণ',
         ]) },
       ],
     },
@@ -799,13 +808,6 @@ function hscBusiness(batch) {
 
 function hscHumanities(batch) {
   const p = `hsc${batch}`;
-  const optional = (id, label) => ({
-    name: label, compulsory: false, defaultSelected: false,
-    papers: [
-      { name: '১ম পত্র', chapters: ch(`${p}-${id}-1`, TODO) },
-      { name: '২য় পত্র', chapters: ch(`${p}-${id}-2`, TODO) },
-    ],
-  });
   return {
     ...hscCompulsory(p),
     civics: {
@@ -813,10 +815,14 @@ function hscHumanities(batch) {
       papers: [
         { name: '১ম পত্র', chapters: ch(`${p}-civics-1`, [
           'পৌরনীতি ও সুশাসন পরিচিতি (আংশিক)',
+          'সুশাসন',
           'মূল্যবোধ, আইন, স্বাধীনতা ও সাম্য',
+          'ই-গভর্নেন্স ও সুশাসন',
           'নাগরিক অধিকার ও কর্তব্য এবং মানবাধিকার',
           'রাজনৈতিক দল, নেতৃত্ব ও সুশাসন',
           'সরকার কাঠামো ও সরকারের অঙ্গসমূহ',
+          'জনমত ও রাজনৈতিক সংস্কৃতি',
+          'জনসেবা ও আমলাতন্ত্র',
           'দেশপ্রেম ও জাতীয়তা',
         ]) },
         { name: '২য় পত্র', chapters: ch(`${p}-civics-2`, [
@@ -824,7 +830,11 @@ function hscHumanities(batch) {
           'পাকিস্তান থেকে বাংলাদেশ (১৯৪৭–১৯৭১)',
           'রাজনৈতিক ব্যক্তিত্ব: বাংলাদেশের স্বাধীনতা লাভ',
           'বাংলাদেশের সংবিধান (আংশিক)',
+          'বাংলাদেশের সরকার ও প্রশাসনিক কাঠামো',
+          'স্থানীয় শাসন',
           'সাংবিধানিক প্রতিষ্ঠান',
+          'বাংলাদেশের নির্বাচনব্যবস্থা',
+          'বাংলাদেশের বৈদেশিক নীতি',
           'নাগরিক সমস্যা ও আমাদের করণীয়',
         ]) },
       ],
@@ -837,16 +847,24 @@ function hscHumanities(batch) {
           'ভোক্তা ও উৎপাদকের আচরণ',
           'উৎপাদন, উৎপাদন ব্যয় ও আয়',
           'বাজার',
+          'শ্রমবাজার',
+          'মূলধন',
+          'সংগঠন',
+          'খাজনা',
           'সামগ্রিক আয় ও ব্যয়',
           'মুদ্রা ও ব্যাংক',
         ]) },
         { name: '২য় পত্র', chapters: ch(`${p}-economics-2`, [
+          'বাংলাদেশের অর্থনীতি পরিচয়',
           'বাংলাদেশের কৃষি',
           'বাংলাদেশের শিল্প',
           'জনসংখ্যা, মানবসম্পদ এবং আত্মকর্মসংস্থান',
+          'খাদ্য নিরাপত্তা',
+          'অর্থায়ন',
           'মুদ্রাস্ফীতি',
           'আন্তর্জাতিক বাণিজ্য',
           'সরকারি অর্থব্যবস্থা',
+          'উন্নয়ন পরিকল্পনা',
         ]) },
       ],
     },
@@ -855,19 +873,24 @@ function hscHumanities(batch) {
       papers: [
         { name: '১ম পত্র', chapters: ch(`${p}-history-1`, [
           'ভারতবর্ষে ইউরোপীয়দের আগমন: ইংরেজ আধিপত্য',
+          'ইংরেজ উপনিবেশিক শাসন: কোম্পানি আমল',
           'ইংরেজ উপনিবেশিক শাসন: ব্রিটিশ আমল',
           'পাকিস্তানি আমলে বাংলা: ভাষা আন্দোলন ও এর গতিপ্রকৃতি',
           'পূর্ব বাংলার স্বায়ত্তশাসন ও স্বাধিকার আন্দোলন',
           'বাংলাদেশের স্বাধীনতা ঘোষণা ও মুক্তিযুদ্ধ',
+          'মুক্তিযুদ্ধে বাংলাদেশ সরকারের (মুজিবনগর) কার্যক্রম',
           'মুক্তিযুদ্ধ, প্রবাসী বাঙালি ও বহির্বিশ্ব',
         ]) },
         { name: '২য় পত্র', chapters: ch(`${p}-history-2`, [
+          'শিল্পবিপ্লব',
           'ফরাসি বিপ্লব',
           'প্রথম বিশ্বযুদ্ধ এবং ভার্সাই সন্ধি',
           'বলশেভিক বিপ্লব',
           'হিটলার ও মুসোলিনির উত্থান এবং দ্বিতীয় বিশ্বযুদ্ধ',
           'জাতিসংঘ ও বিশ্বশান্তি',
           'স্নায়ুযুদ্ধ: পুঁজিবাদ ও সমাজতান্ত্রিক বিশ্বের দ্বন্দ্ব',
+          'স্নায়ুযুদ্ধ পরবর্তী বিশ্ব',
+          'বর্ণবাদ বিরোধী আন্দোলন',
         ]) },
       ],
     },
@@ -880,10 +903,14 @@ function hscHumanities(batch) {
           'খুলাফায়ে রাশেদিন',
           'উমাইয়া খিলাফত',
           'আব্বাসি খিলাফত',
+          'স্পেনে উমাইয়া শাসন',
+          'উত্তর আফ্রিকার ফাতেমি খিলাফত',
         ]) },
         { name: '২য় পত্র', chapters: ch(`${p}-islamic_history-2`, [
           'ভারতে মুসলিম শাসন প্রতিষ্ঠা',
+          'দিল্লি সালতানাত',
           'ভারত উপমহাদেশে মুঘল শাসন',
+          'বাংলায় কোম্পানি ও ঔপনিবেশিক শাসন',
           'বাংলার ইতিহাস (পাকিস্তান আমল)',
           'স্বাধীন ও সার্বভৌম বাংলাদেশের অভ্যুদয়',
         ]) },
@@ -894,41 +921,77 @@ function hscHumanities(batch) {
       papers: [
         { name: '১ম পত্র', chapters: ch(`${p}-logic-1`, [
           'যুক্তিবিদ্যা পরিচিতি',
+          'যুক্তিবিদ্যার প্রায়োগিক দিক',
           'যুক্তির উপাদান (আংশিক)',
           'বিধেয়ক',
           'অনুমান',
           'অবরোহ অনুমান (আংশিক)',
           'আরোহ অনুমান ও আরোহ অনুমানের মূল্য',
+          'প্রতীকী যুক্তিবিদ্যা',
         ]) },
         { name: '২য় পত্র', chapters: ch(`${p}-logic-2`, [
           'যৌক্তিক সংজ্ঞা',
           'যৌক্তিক বিভাগ',
           'আরোহের প্রকারভেদ',
           'প্রকল্প',
+          'কার্যকারণ সম্পর্ক প্রমাণ পদ্ধতি',
           'ব্যাখ্যা',
+          'শ্রেণিকরণ',
+          'সম্ভাবনা',
         ]) },
       ],
     },
-    social_work: optional('social_work', 'সমাজকর্ম (Social Work)'),
+    social_work: {
+      name: 'সমাজকর্ম (Social Work)', compulsory: false, defaultSelected: false,
+      papers: [
+        { name: '১ম পত্র', chapters: ch(`${p}-social_work-1`, [
+          'সমাজকর্ম: প্রকৃতি ও পরিধি',
+          'সমাজকর্ম পেশার ঐতিহাসিক প্রেক্ষাপট',
+          'সমাজকর্মের মূল্যবোধ ও নীতিমালা',
+          'সমাজকর্ম সম্পর্কিত প্রত্যয়সমূহ',
+          'সমাজকর্মের সাথে বিজ্ঞানের বিভিন্ন শাখা ও পেশার সম্পর্ক',
+          'সমাজকর্ম অনুশীলনে ব্যবহৃত পদ্ধতি',
+          'সামাজিক নীতি, পরিকল্পনা এবং সমাজকর্ম',
+          'সমাজকর্ম পেশার সমস্যা ও সম্ভাবনা',
+        ]) },
+        { name: '২য় পত্র', chapters: ch(`${p}-social_work-2`, [
+          'বাংলাদেশের মৌলিক মানবিক চাহিদা',
+          'সমাজকর্মের শাখা',
+          'সামাজিক সমস্যা সমাধানে সমাজকর্মের অনুশীলন',
+          'সামাজিক সমস্যা প্রতিরোধ এবং সামাজিক প্রতিষ্ঠান ও সংস্থা',
+          'সামাজিক আইন ও সমাজকর্ম',
+          'বাংলাদেশে সরকারি সমাজ উন্নয়ন কার্যক্রম',
+          'বাংলাদেশ বেসরকারি উন্নয়ন কার্যক্রম',
+          'আন্তর্জাতিক সংস্থার সমাজ উন্নয়ন কার্যক্রম',
+          'সমাজকর্ম শিক্ষায় মাঠকর্ম ও অনুশীলন',
+        ]) },
+      ],
+    },
     sociology: {
       name: 'সমাজবিজ্ঞান (Sociology) [যাচাই করতে হবে]', compulsory: false, defaultSelected: false,
       papers: [
         { name: '১ম পত্র', chapters: ch(`${p}-sociology-1`, [
           'সমাজবিজ্ঞানের উৎপত্তি ও বিকাশ',
+          'সমাজবিজ্ঞানের বৈজ্ঞানিক মর্যাদা',
+          'সমাজবিজ্ঞানীদের মতবাদ ও অবদান',
           'সমাজবিজ্ঞানের মৌল প্রত্যয় (আংশিক)',
           'সামাজিক প্রতিষ্ঠান',
           'সমাজ জীবনে প্রভাব বিস্তারকারী উপাদান',
           'সামাজিকীকরণ প্রক্রিয়া',
           'সামাজিক স্তরবিন্যাস ও অসমতা',
+          'সামাজিক ব্যবস্থা',
           'বিচ্যুতিমূলক আচরণ এবং অপরাধ',
           'সামাজিক পরিবর্তন',
         ]) },
         { name: '২য় পত্র', chapters: ch(`${p}-sociology-2`, [
           'বাংলাদেশে সমাজবিজ্ঞান চর্চার বিকাশ',
+          'বাংলাদেশের সমাজ ও সংস্কৃতি',
           'প্রত্নতাত্ত্বিক ভিত্তিতে বাংলাদেশ (আদি জনবসতি)',
           'বাংলাদেশের নৃগোষ্ঠীর জীবনধারা',
           'বাংলাদেশের অভ্যুদয়ের সামাজিক প্রেক্ষাপট',
           'বাংলাদেশের গ্রামীণ ও শহুরে সমাজ',
+          'বাংলাদেশের বিবাহ, পরিবার ও জ্ঞাতিসম্পর্ক',
+          'বাংলাদেশের সামাজিক পরিবর্তন',
           'বাংলাদেশের সামাজিক সমস্যা ও প্রতিকারের উপায়',
           'বাংলাদেশের সামাজিক উন্নয়ন (আংশিক)',
         ]) },
@@ -938,20 +1001,27 @@ function hscHumanities(batch) {
       name: 'ভূগোল (Geography)', compulsory: false, defaultSelected: false,
       papers: [
         { name: '১ম পত্র', chapters: ch(`${p}-geography-1`, [
+          'প্রাকৃতিক ভূগোল',
           'পৃথিবীর গঠন',
           'ভূমিরূপ পরিবর্তন',
           'বায়ুমণ্ডল ও বায়ু দূষণ',
           'জলবায়ুর উপাদান ও নিয়ামক',
           'জলবায়ু অঞ্চল ও জলবায়ু পরিবর্তন',
+          'বারিমণ্ডল',
           'সমুদ্রস্রোত ও জোয়ারভাটা',
+          'জীবমণ্ডল',
           'ব্যবহারিক মানচিত্র ও স্কেল',
         ]) },
         { name: '২য় পত্র', chapters: ch(`${p}-geography-2`, [
           'মানব ভূগোল',
           'জনসংখ্যা',
+          'বসতি',
           'কৃষি',
           'খনিজ ও শক্তি সম্পদ',
           'শিল্প',
+          'পরিবহন ও যোগাযোগ',
+          'বাণিজ্য',
+          'দূষণ ও দুর্যোগ',
           'মানচিত্র অভিক্ষেপ',
         ]) },
       ],
@@ -961,37 +1031,42 @@ function hscHumanities(batch) {
       papers: [
         { name: '১ম পত্র', chapters: ch(`${p}-psychology-1`, [
           'মনোবিজ্ঞান পরিচিতি',
+          'আচরণ ও আচরণের বিকাশ',
           'আচরণের জৈবিক ভিত্তি',
           'প্রেষণা ও আবেগ',
           'শিখন ও স্মৃতি',
           'সংবেদন ও প্রত্যক্ষণ',
+          'বয়সন্ধিকাল ও মানসিক স্বাস্থ্য',
+          'পরিসংখ্যান পরিচিতি',
         ]) },
         { name: '২য় পত্র', chapters: ch(`${p}-psychology-2`, [
           'বুদ্ধি',
           'ব্যক্তিত্ব',
+          'মনোভাব',
+          'আচরণের উপর পরিবেশের প্রভাব',
           'মানসিক চাপ এবং চাপ মোকাবিলা',
           'মূল্যবোধ',
           'মনোবিজ্ঞানে গবেষণার পদ্ধতিসমূহ',
+          'পরিসংখ্যান',
         ]) },
       ],
     },
-    statistics: {
-      name: 'পরিসংখ্যান (Statistics)', compulsory: false, defaultSelected: false,
+    agriculture: {
+      name: 'কৃষিশিক্ষা (Agriculture Studies)', compulsory: false, defaultSelected: false,
       papers: [
-        { name: '১ম পত্র', chapters: ch(`${p}-statistics-1`, [
-          'পরিসংখ্যান, চলক ও প্রতীক',
-          'কেন্দ্রীয় প্রবণতা',
-          'পরিঘাত, বক্রতা ও সূচলতা',
-          'কালীন সারি',
-          'বাংলাদেশের প্রকাশিত পরিসংখ্যান',
+        { name: '১ম পত্র', chapters: ch(`${p}-agriculture-1`, [
+          'বাংলাদেশের কৃষি',
+          'ভূমি সম্পৃক্ত কৃষি প্রযুক্তি',
+          'বিশেষ উৎপাদন সম্পৃক্ত কৃষি প্রযুক্তি',
+          'কৃষি ও জলবায়ু',
+          'মাঠ ও উদ্যান ফসল উৎপাদন',
         ]) },
-        { name: '২য় পত্র', chapters: ch(`${p}-statistics-2`, [
-          'সম্ভাবনা',
-          'দৈবচলক ও সম্ভাবনা বিন্যাস',
-          'গাণিতিক প্রত্যাশা',
-          'দ্বিপদী বিন্যাস',
-          'পয়সু বিন্যাস (Poisson Distribution)',
-          'জীব পরিসংখ্যান',
+        { name: '২য় পত্র', chapters: ch(`${p}-agriculture-2`, [
+          'মৎস চাষ',
+          'পোল্ট্রি পালন',
+          'পশু পালন',
+          'বনায়ন',
+          'কৃষি অর্থনীতি ও সমবায়',
         ]) },
       ],
     },

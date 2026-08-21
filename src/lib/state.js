@@ -2,7 +2,7 @@ import { needsSubjectPicker } from './subjects.js';
 
 // Bump when the shape of a stored state changes, or when chapter ids are renumbered.
 // A returning student with an older version is reset rather than mis-scored.
-export const SCHEMA_VERSION = 5;
+export const SCHEMA_VERSION = 6;
 export const STORAGE_KEY = 'tor-syllabus-tracker-v1';
 
 const FLOW = ['landing', 'class', 'batch', 'group', 'subjects', 'syllabus', 'lead', 'result'];
